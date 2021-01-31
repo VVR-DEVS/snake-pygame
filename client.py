@@ -11,8 +11,6 @@ class Client(object):
             soc.send(input().encode())
 
 
-        
-
 
 
 if __name__ == '__main__':
