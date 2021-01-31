@@ -1,7 +1,9 @@
 import pygame as pg
 from Settings import *
 
+
 class Spiel:
+    
     def __init__(self):
 
         pg.init()
@@ -32,8 +34,14 @@ class Spiel:
                 self.running = False
 
     def draw(self):
-        self.bildschirm.fill(BLACK)
+        self.bildschirm.fill(GREY)
+        self.draw_grid()
         pg.display.flip()
+        
+    def draw_grid(self):
+        for x in range(0, WIDTH, TILESIZE):
+            pg.draw.line(self.bildschirm, BLACK, (x, 0), (x, HEIGHT))
+            pg.draw.line(self.bildschirm, BLACK, (0, x), (WIDTH, x))
 
     def startbildschirm(self):
         pass
