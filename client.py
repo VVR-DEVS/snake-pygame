@@ -1,6 +1,7 @@
 import socket
 from Settings import PORT
 
+
 class Client(object):
 
     def __init__(self):
@@ -9,8 +10,6 @@ class Client(object):
         soc.connect(('localhost', PORT))
         while True:
             soc.send(input().encode())
-
-
 
 
 if __name__ == '__main__':
