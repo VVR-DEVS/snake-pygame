@@ -1,6 +1,7 @@
 import pygame as pg
 from Settings import *
 
+
 class Snake:
 
     def __init__(self):
@@ -36,6 +37,6 @@ class Snake:
             return
         if self.direction == 'right' and move is 'left':
             return
-        if  self.direction == 'left' and move is 'right':
+        if self.direction == 'left' and move is 'right':
             return
         self.direction = move
