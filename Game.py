@@ -1,9 +1,12 @@
 import pygame as pg
 from Snake import Snake
+from Server import Server
 from Settings import *
 
 
 class Spiel:
+
+    enemies = None
     
     def __init__(self):
 
@@ -13,11 +16,14 @@ class Spiel:
         pg.display.set_caption(TITLE)
         self.running = True
         self.jogador = Snake()
+        self.server = Server(self.enemies)
+        self.server.start()
 
     def neueSpiel(self):
         self.run()
 
     def run(self):
+        self.server.run()
         self.playing = True
         while self.playing:
             self.clock.tick(10)
@@ -31,6 +37,7 @@ class Spiel:
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                self.server.close()
                 if self.playing:
                     self.playing = False
                 self.running = False

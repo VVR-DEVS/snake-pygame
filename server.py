@@ -1,42 +1,30 @@
 import socket
 from threading import Thread
 
+from EnemiesSnake import EnemiesSnake
 from Settings import PORT
 
-class Server(object):
+class Server(Thread):
 
-    connections = []
+    soc = None
 
-    def __init__(self):
-        
-        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        soc.bind(('localhost', PORT))
-        soc.listen(1)
-        while True:
-            connection, adress = soc.accept()
-            self.connections.append(ServerConnection(connection, adress))
-            self.connections[-1].start()
-        soc.close()
-
-class ServerConnection(Thread):
-
-    connection = None
-    adress = None
-
-    def __init__(self, connection, adress):
+    def __init__(self, enemies):
         Thread.__init__(self)
-        self.connection = connection
-        self.adress = adress
-        print('Connection Accepted with: ', adress)
-    
+        self.soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.soc.bind(('localhost', PORT))
+        self.enemies = enemies
+
     def run(self):
+        self.soc.listen(1)
         while True:
-            data = self.connection.recv(1024)
-            print(self.adress, '>>', data.decode())
-            if not data:
-                break
-        self.connection.close()
+            connection, adress = self.soc.accept()
+            self.enemies.append(EnemiesSnake(connection, adress))
+            self.enemies[-1].start()
+
+    def close(self):
+        self.soc.close
 
 
 if __name__ == '__main__':
-    serverObj = Server()
+    serverObj = Server([])
+    serverObj.start()
