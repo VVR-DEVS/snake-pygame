@@ -15,6 +15,6 @@ class EnemiesSnake(Thread):
     
     def run(self):
         while True:
-            newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')          
+            newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')    
             print('Poss:', newPosX, newPosY)
         self.connection.close()

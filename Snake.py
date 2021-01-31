@@ -29,7 +29,7 @@ class Snake:
         else:
             self.snake[0] = (self.snake[0][0], self.snake[0][1] + TILESIZE)
         
-        # print('Position >> ', self.snake[0])
+        # print('Position >> ', self.snake[0]) # Show Position
 
     def change_direction(self, move):
         if self.direction == 'up' and move is 'down':
