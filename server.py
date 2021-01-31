@@ -1,22 +1,21 @@
-import socket as sockt
+import socket
 from Settings import PORT
 
 class Server(object):
 
     def __init__(self):
         
-        with sockt.socket(sockt.AF_INET, sockt.SOCK_STREAM) as socket:
-            socket.bind(('localhost', PORT))
-            socket.listen()
-            conection, adress = socket.accept()
-            with conection:
-                print(adress)
-                while True:
-                    data = conection.recv(1024)
-                    if not data:
-                        break
-                    conection.sendall(data)
-                    
-   
+        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        soc.bind(('localhost', PORT))
+        soc.listen(1)
+        conection, adress = soc.accept()
+        print('Connection Accepted with: ', adress)
+        while True:
+            data = conection.recv(1024)
+            print(data)
+            if not data:
+                break
+
+
 if __name__ == '__main__':
     serverObj = Server()
