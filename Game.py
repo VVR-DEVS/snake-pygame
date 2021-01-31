@@ -20,7 +20,7 @@ class Spiel:
     def run(self):
         self.playing = True
         while self.playing:
-            self.clock.tick(60)
+            self.clock.tick(10)
             self.events()
             self.aktualisieren()
             self.draw()
@@ -35,6 +35,16 @@ class Spiel:
                     self.playing = False
                 self.running = False
 
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_UP:
+                    self.jogador.change_direction('up')
+                if event.key == pg.K_DOWN:
+                    self.jogador.change_direction('down')
+                if event.key == pg.K_RIGHT:
+                    self.jogador.change_direction('right')
+                if event.key == pg.K_LEFT:
+                    self.jogador.change_direction('left')
+
     def draw(self):
         self.bildschirm.fill(BLACK)
         self.draw_grid()
@@ -42,6 +52,7 @@ class Spiel:
         pg.display.flip()
         
     def draw_grid(self):
+        self.jogador.update()
         for x in range(0, WIDTH, TILESIZE):
             pg.draw.line(self.bildschirm, GREY, (x, 0), (x, HEIGHT))
             pg.draw.line(self.bildschirm, GREY, (0, x), (WIDTH, x))
