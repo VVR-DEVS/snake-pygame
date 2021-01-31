@@ -9,7 +9,7 @@ class Client(object):
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         soc.connect(('localhost', PORT))
         while True:
-            soc.send(input().encode())
+            soc.send(input().encode('utf-8'))
 
 
 if __name__ == '__main__':
