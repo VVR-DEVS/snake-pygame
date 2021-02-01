@@ -4,11 +4,14 @@ from Settings import *
 
 class Snake:
 
-    def __init__(self):
-
-        self.snake = [(11 * TILESIZE, 10 * TILESIZE), (10 * TILESIZE, 10 * TILESIZE), (9 * TILESIZE, 10 * TILESIZE)]
+    def __init__(self, pos, idPlayer=None):
+        
+        self.snake = [(pos.x * TILESIZE, pos.y * TILESIZE), ((pos.x - 1) * TILESIZE, pos.y * TILESIZE), ((pos.x - 3) * TILESIZE, pos.y * TILESIZE)]
         self.snake_skin = pg.Surface((TILESIZE, TILESIZE))
-        self.snake_skin.fill((255, 0, 0))
+        if not idPlayer:
+            self.snake_skin.fill((255, 0, 0))
+        else:
+            self.snake_skin.fill((0, 255, 0))
 
         self.up = 0
         self.down = 1
@@ -33,6 +36,7 @@ class Snake:
         # print('Position >> ', self.snake[0]) # Show Position
 
     def change_direction(self, move):
+    
         if self.direction == 'up' and move is 'down':
             return
         if self.direction == 'down' and move is 'up':
@@ -42,3 +46,9 @@ class Snake:
         if self.direction == 'left' and move is 'right':
             return
         self.direction = move
+        
+    def set_position(self, pos):
+        for i in range(len(self.snake) - 1, 0, -1):
+            self.snake[i] = (self.snake[i-1][0], self.snake[i-1][1])
+            
+        self.snake[0] = (pos.x * TILESIZE, pos.y * TILESIZE)
