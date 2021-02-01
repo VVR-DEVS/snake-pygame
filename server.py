@@ -34,18 +34,32 @@ class PlayerConnection(Thread):
         self.idSpieler = idSpieler
         self.connection = connection
         self.adress = adress
+        self.get_spielen_pos = get_spielen_pos
         print('Connection Accepted with: ', adress)
         self.connection.send(b'10,10')
         self.pos = Position('10,10')
+        self.state = "waiting"
     
     def run(self):
+        while self.state == 'waiting':
+            msg = self.connection.recv(1024).decode('utf-8')
+            self.connection.send(self.format_spielen_pos(self.get_spielen_pos()).decode())
+            
+            if len(self.get_spielen_pos()) is num_players_on_match:
+                self.state = 'starting'
+
+            
+
         while True:
             newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',') # Recebe posicão Player
             print('Snake (' + self.idSpieler + '):', newPosX, newPosY)
             self.pos = self.pos.set(newPosX, newPosY)
-            self.connection.send(self.get_spielen_pos.join(',').decode()) # manda posição inimigo
+            self.connection.send(self.format_spielen_pos(self.get_spielen_pos()).decode()) # manda posição inimigo "0,0,1; 0,012"
 
         self.connection.close()
+
+    def format_spielen_pos():
+        pass
 
 
 if __name__ == '__main__':
