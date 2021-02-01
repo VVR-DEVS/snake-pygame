@@ -2,11 +2,14 @@ import pygame as pg
 from Snake import Snake
 from server import Server
 from Settings import *
+from client import Client
 
+PLAYING = "playing"
+CONNECTING = "connecting"
+WAITING = "waiting"
+MENU = "menu"
 
 class Spiel:
-
-    enemies = None
     
     def __init__(self):
 
@@ -15,35 +18,57 @@ class Spiel:
         self.clock = pg.time.Clock()
         pg.display.set_caption(TITLE)
         self.running = True
-        self.playing = True
-        self.jogador = Snake()
-        self.server = Server(self.enemies)
-        self.server.start()
+        self.state = MENU
+        self.connection = None
+        self.enemies = []
+        self.spieler = []
 
     def neueSpiel(self):
         self.run()
 
     def run(self):
-        self.startbildschirm()
-        # self.server.run()
-        self.playing = True
-        while self.playing:
-            self.clock.tick(10)
-            self.events()
-            self.aktualisieren()
-            self.draw()
+
+        while self.running:
+            if self.state == MENU:
+                self.startbildschirm()
+            elif self.state == CONNECTING:
+                pos = self.connection.connect()
+                self.spieler = Snake(pos)
+                self.state = WAITING
+            elif self.state == WAITING:
+                id_list = []
+                while True:
+                    enemies_pos = self.connection.wait_start()
+                    if enemies_pos is None:
+                        self.state = PLAYING
+                        break
+                    for idEnemy in enemies_pos:
+                        if idEnemy not in id_list:
+                            id_list.append(idEnemy)
+                            self.enemies.append(Snake(enemies_pos[idEnemy], idEnemy))
+                            
+            elif self.state == PLAYING:
+                while self.state == PLAYING:
+                    self.clock.tick(10)
+                    self.events()
+                    self.aktualisieren()
+                    self.draw()
 
     def aktualisieren(self):
-        pass
+        enemies_pos = self.connection.send(self.spieler.pos)
+        for idEnemy in enemies_pos:
+            filter(lambda enemy: idEnemy == enemy.id, enemies_pos)[0].set_position(enemies_pos[idEnemy])
 
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.server.close()
-                if self.playing:
-                    self.playing = False
+                self.state = "OUT"
                 self.running = False
-
+            
+            if event.type == pq.K_ESC:
+                self.state = MENU
+            
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
                     self.jogador.change_direction('up')
@@ -69,7 +94,10 @@ class Spiel:
     def draw_snake(self):
         for pos in self.jogador.snake:
             self.bildschirm.blit(self.jogador.snake_skin, pos)
-
+    
+    def start_cliente(self):
+        self.connection = Client()
+    
     def startbildschirm(self):
         botao_server = pg.rect.Rect(8 * TILESIZE, HEIGHT / 2.5, 300, 150)
         text_server = pg.font.SysFont('arial', 40).render('server', True, PURPLE)
@@ -84,22 +112,23 @@ class Spiel:
         text_credits = pg.font.SysFont('sans', 20).render('developed by: Mateus Rosario and Wercton Barbosa', True,
                                                           GREY)
 
-        while self.playing:
+        while self.state == MENU:
             self.bildschirm.fill(PURPLE)
             mouse = pg.mouse.get_pos()
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
-                    self.playing = False
+                    self.state = "OUT"
                     self.running = False
 
                 if event.type == pg.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     if botao_server.collidepoint(mouse_pos):
-                        self.playing = False
+                        self.state = CONNECTING
                         print("server")
                     elif botao_client.collidepoint(mouse_pos):
-                        self.playing = False
+                        self.state = CONNECTING
+                        self.start_cliente()
                         print("client")
 
             if botao_server.collidepoint(mouse):
