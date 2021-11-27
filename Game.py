@@ -9,8 +9,9 @@ CONNECTING = "connecting"
 WAITING = "waiting"
 MENU = "menu"
 
+
 class Spiel:
-    
+
     def __init__(self):
 
         pg.init()
@@ -21,7 +22,8 @@ class Spiel:
         self.state = MENU
         self.connection = None
         self.enemies = []
-        self.spieler = []
+        self.spieler = None
+        self.server = None
 
     def neueSpiel(self):
         self.run()
@@ -46,7 +48,7 @@ class Spiel:
                         if idEnemy not in id_list:
                             id_list.append(idEnemy)
                             self.enemies.append(Snake(enemies_pos[idEnemy], idEnemy))
-                            
+
             elif self.state == PLAYING:
                 while self.state == PLAYING:
                     self.clock.tick(10)
@@ -65,39 +67,39 @@ class Spiel:
                 self.server.close()
                 self.state = "OUT"
                 self.running = False
-            
-            if event.type == pq.K_ESC:
+
+            if event.type == pg.K_ESC:
                 self.state = MENU
-            
+
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
-                    self.jogador.change_direction('up')
+                    self.spieler.change_direction('up')
                 if event.key == pg.K_DOWN:
-                    self.jogador.change_direction('down')
+                    self.spieler.change_direction('down')
                 if event.key == pg.K_RIGHT:
-                    self.jogador.change_direction('right')
+                    self.spieler.change_direction('right')
                 if event.key == pg.K_LEFT:
-                    self.jogador.change_direction('left')
+                    self.spieler.change_direction('left')
 
     def draw(self):
         self.bildschirm.fill(BLACK)
         self.draw_grid()
         self.draw_snake()
         pg.display.flip()
-        
+
     def draw_grid(self):
-        self.jogador.update()
+        self.spieler.update()
         for x in range(0, WIDTH, TILESIZE):
             pg.draw.line(self.bildschirm, GREY, (x, 0), (x, HEIGHT))
             pg.draw.line(self.bildschirm, GREY, (0, x), (WIDTH, x))
 
     def draw_snake(self):
-        for pos in self.jogador.snake:
-            self.bildschirm.blit(self.jogador.snake_skin, pos)
-    
+        for pos in self.spieler.snake:
+            self.bildschirm.blit(self.spieler.snake_skin, pos)
+
     def start_cliente(self):
         self.connection = Client()
-    
+
     def startbildschirm(self):
         botao_server = pg.rect.Rect(8 * TILESIZE, HEIGHT / 2.5, 300, 150)
         text_server = pg.font.SysFont('arial', 40).render('server', True, PURPLE)
