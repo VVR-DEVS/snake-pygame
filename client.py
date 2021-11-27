@@ -1,7 +1,7 @@
 import socket
 
 from position import Position
-from Settings import PORT
+from Settings import PORT, HOST
 
 
 class Client(object):
@@ -10,7 +10,7 @@ class Client(object):
         self.soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def connect(self):
-        self.soc.connect(('localhost', PORT))
+        self.soc.connect((HOST, PORT))
         pos = Position(self.soc.recv(1024).decode('utf-8'))
         return pos
 

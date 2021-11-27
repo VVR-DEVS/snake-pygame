@@ -2,7 +2,7 @@ import socket
 from threading import Thread
 from position import Position
 
-from Settings import PORT
+from Settings import PORT, HOST
 
 
 class Server(Thread):
@@ -10,7 +10,7 @@ class Server(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.soc.bind(('localhost', PORT))
+        self.soc.bind((HOST, PORT))
         self.spielen = []
 
     def run(self):
