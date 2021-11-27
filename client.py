@@ -20,17 +20,27 @@ class Client(object):
         if resp == 'start':
             return None
 
+        if resp == 'NEY':
+            return {}
+
         enemies_pos = []
         for i in resp.split(';'):
             item = i.split(',')
-            enemies_pos.append((item[2], Position(item[0], item[1])))
+            enemies_pos.append((item[2], Position(int(item[0]), int(item[1]))))
         return dict(enemies_pos)
 
     def send(self, pos):
+        print('Mandando pos', pos)
         self.soc.send(str(pos).encode())
         enemies_pos = []
-        resp = self.soc.recv(1024).decode()
+        resp = self.soc.recv(1024).decode('utf-8')
         for i in resp.split(';'):
             item = i.split(',')
-            enemies_pos.append((item[2], Position(item[0], item[1])))
+            try:
+                enemies_pos.append((item[2], Position(item[0], item[1])))
+            except:
+                print(item)
         return dict(enemies_pos)
+
+
+

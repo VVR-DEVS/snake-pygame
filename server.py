@@ -11,59 +11,87 @@ class Server(Thread):
         Thread.__init__(self)
         self.soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.soc.bind(('localhost', PORT))
+        self.spielen = []
 
     def run(self):
-        self.soc.listen(1)
-        while True:
-            connection, adress = self.soc.accept()
-            self.spielen.append(
-                PlayerConnection(connection, adress, self.enemies, len(self.players), self.get_spieler_pos()))
-            self.spielen[-1].start()
+        try:
+            self.soc.listen(5)
+            print('Server Iniciado', 'Waiting Connection')
+            while True:
+                connection, adress = self.soc.accept()
+                self.spielen.append(PlayerConnection(connection, adress, len(self.spielen), self.get_enemies_pos))
+                self.spielen[-1].start()
+        except Exception as e:
+            print('Server:', e)
+            self.close()
 
-    def get_spielen_pos(idSpielen):
+    def get_enemies_pos(self, id_spieler):
         positions = []
-        for i in range(len(self.spielen)):
-            pos.append(self.spielen[i].pos)
-        return pos
+        for spieler in self.spielen:
+            if spieler.id != id_spieler:
+                positions.append(','.join([str(spieler.pos), str(spieler.id)]))
+        return positions
 
     def close(self):
-        self.soc.close
+        print('Clossing Connections')
+        self.soc.close()
+        raise SystemExit()
 
 
 class PlayerConnection(Thread):
 
-    def __init__(self, connection, adress, idSpieler, get_spielen_pos):
+    def __init__(self, connection, adress, id, get_enemies_pos):
         Thread.__init__(self)
-        self.idSpieler = idSpieler
+        self.id = id
         self.connection = connection
         self.adress = adress
-        self.get_spielen_pos = get_spielen_pos
+        self.get_enemies_pos = get_enemies_pos
         print('Connection Accepted with: ', adress)
         self.connection.send(b'10,10')
-        self.pos = Position('10,10')
+        self.pos = Position(10, 10)
         self.state = "waiting"
 
     def run(self):
-        while self.state == 'waiting':
-            msg = self.connection.recv(1024).decode('utf-8')
-            self.connection.send(self.format_spielen_pos(self.get_spielen_pos()).decode())
+        try:
+            while self.state == 'waiting':
+                msg = self.connection.recv(1024).decode('utf-8')
+                print('Snake (' + str(self.id) + ') says :', msg)
+                enemies_pos = self.get_enemies_pos(self.id)
+                temp = self.format_spielen_pos(enemies_pos)
+                if temp == '':
+                    self.connection.send('NEY'.encode())
+                else:
+                    self.connection.send(temp.encode())
 
-            if len(self.get_spielen_pos()) is num_players_on_match:
-                self.state = 'starting'
+                if len(enemies_pos) + 1 == 2:
+                    self.state = 'starting'
 
-        while True:
-            newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')  # Recebe posicão Player
-            print('Snake (' + self.idSpieler + '):', newPosX, newPosY)
-            self.pos = self.pos.set(newPosX, newPosY)
-            self.connection.send(
-                self.format_spielen_pos(self.get_spielen_pos()).decode())  # manda posição inimigo "0,0,1; 0,012"
+            while self.state == 'starting':
+                msg = self.connection.recv(1024).decode('utf-8')
+                print('Snake (' + str(self.id) + ') says :', msg)
+                self.connection.send('start'.encode())
+                self.state = 'playing'
 
-        self.connection.close()
+            while self.state == 'playing':
+                newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')  # Recebe posição Player
+                print('Snake (' + str(self.id) + '):', newPosX, newPosY)
+                self.pos.set(newPosX, newPosY)
+                self.connection.send(self.format_spielen_pos(self.get_enemies_pos(self.id)).encode())  # manda posição inimigo "0,0,1; 0,012"
 
-    def format_spielen_pos():
-        pass
+            self.connection.close()
+        except Exception as e:
+            print('Player', self.id, ':', e)
+            self.connection.close()
+
+    @staticmethod
+    def format_spielen_pos(positions):
+        return ';'.join(positions)
 
 
 if __name__ == '__main__':
-    serverObj = Server([])
-    serverObj.start()
+    serverObj = Server()
+    try:
+        serverObj.start()
+    except Exception as e:
+        print('Server :', e)
+        serverObj.close()

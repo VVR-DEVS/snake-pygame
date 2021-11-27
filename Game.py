@@ -40,8 +40,11 @@ class Spiel:
             elif self.state == WAITING:
                 id_list = []
                 while True:
+                    #print('Waiting')
                     enemies_pos = self.connection.wait_start()
+                    print(enemies_pos)
                     if enemies_pos is None:
+                        #print('Iniciado')
                         self.state = PLAYING
                         break
                     for idEnemy in enemies_pos:
@@ -59,7 +62,7 @@ class Spiel:
     def aktualisieren(self):
         enemies_pos = self.connection.send(self.spieler.pos)
         for idEnemy in enemies_pos:
-            filter(lambda enemy: idEnemy == enemy.id, enemies_pos)[0].set_position(enemies_pos[idEnemy])
+            next(filter(lambda enemy: idEnemy == enemy.id, self.enemies)).set_position(enemies_pos[idEnemy])
 
     def events(self):
         for event in pg.event.get():
@@ -68,7 +71,7 @@ class Spiel:
                 self.state = "OUT"
                 self.running = False
 
-            if event.type == pg.K_ESC:
+            if event.type == pg.K_ESCAPE:
                 self.state = MENU
 
             if event.type == pg.KEYDOWN:
@@ -94,8 +97,15 @@ class Spiel:
             pg.draw.line(self.bildschirm, GREY, (0, x), (WIDTH, x))
 
     def draw_snake(self):
+        print('Draw', self.spieler.pos, self.enemies[0].pos)
         for pos in self.spieler.snake:
             self.bildschirm.blit(self.spieler.snake_skin, pos)
+
+        for player in self.enemies:
+            for pos in player.snake:
+                print(pos)
+                self.bildschirm.blit(player.snake_skin, pos)
+
 
     def start_cliente(self):
         self.connection = Client()
@@ -126,7 +136,8 @@ class Spiel:
                 if event.type == pg.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     if botao_server.collidepoint(mouse_pos):
-                        self.state = CONNECTING
+                        self.state = "OUT"
+                        self.running = False
                         print("server")
                     elif botao_client.collidepoint(mouse_pos):
                         self.state = CONNECTING
