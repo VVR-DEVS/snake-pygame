@@ -27,17 +27,27 @@ class Snake:
             self.snake[i] = (self.snake[i - 1][0], self.snake[i - 1][1])
 
         if self.direction == 'left':
-            self.snake[0] = (self.snake[0][0] - TILESIZE, self.snake[0][1])
+            if self.snake[0][0] == 0:
+                self.snake[0] = (WIDTH, self.snake[0][1])
+            else:
+                self.snake[0] = (self.snake[0][0] - TILESIZE, self.snake[0][1])
         elif self.direction == 'right':
-            self.snake[0] = (self.snake[0][0] + TILESIZE, self.snake[0][1])
+            if self.snake[0][0] == WIDTH:
+                self.snake[0] = (0, self.snake[0][1])
+            else:
+                self.snake[0] = (self.snake[0][0] + TILESIZE, self.snake[0][1])
         elif self.direction == 'up':
-            self.snake[0] = (self.snake[0][0], self.snake[0][1] - TILESIZE)
+            if self.snake[1][1] == 0:
+                self.snake[0] = (self.snake[0][0], HEIGHT)
+            else:
+                self.snake[0] = (self.snake[0][0], self.snake[0][1] - TILESIZE)
         else:
-            self.snake[0] = (self.snake[0][0], self.snake[0][1] + TILESIZE)
+            if self.snake[1][1] == HEIGHT:
+                self.snake[0] = (self.snake[0][0], 0)
+            else:
+                self.snake[0] = (self.snake[0][0], self.snake[0][1] + TILESIZE)
 
         self.pos.set(self.snake[0][0], self.snake[0][1])
-
-        # print('Position >> ', self.snake[0])
 
     def change_direction(self, move):
 

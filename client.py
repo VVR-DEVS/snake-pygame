@@ -30,7 +30,7 @@ class Client(object):
         return dict(enemies_pos)
 
     def send(self, pos):
-        print('Mandando pos', pos)
+        # print('Mandando pos', pos)
         self.soc.send(str(pos).encode())
         enemies_pos = []
         resp = self.soc.recv(1024).decode('utf-8')
