@@ -13,5 +13,10 @@ TILESIZE = 16
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
+PLAYING = "playing"
+CONNECTING = "connecting"
+WAITING = "waiting"
+MENU = "menu"
+
 PORT = 5551
 HOST = 'localhost'

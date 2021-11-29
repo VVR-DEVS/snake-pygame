@@ -52,12 +52,8 @@ class Snake:
         self.direction = move
 
     def set_position(self, pos):
-        if self.id != None:
-            print('Meu Inimigo', self.pos)
         for i in range(len(self.snake) - 1, 0, -1):
             self.snake[i] = (self.snake[i - 1][0], self.snake[i - 1][1])
 
         self.snake[0] = (int(pos.x), int(pos.y))
         self.pos.set(self.snake[0][0], self.snake[0][1])
-        if self.id != None:
-            print('Meu Inimigo Antigo', self.pos)

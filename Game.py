@@ -1,13 +1,7 @@
 import pygame as pg
 from Snake import Snake
-from server import Server
 from Settings import *
 from client import Client
-
-PLAYING = "playing"
-CONNECTING = "connecting"
-WAITING = "waiting"
-MENU = "menu"
 
 
 class Spiel:
@@ -40,11 +34,8 @@ class Spiel:
             elif self.state == WAITING:
                 id_list = []
                 while True:
-                    #print('Waiting')
                     enemies_pos = self.connection.wait_start()
-                    print(enemies_pos)
                     if enemies_pos is None:
-                        #print('Iniciado')
                         self.state = PLAYING
                         break
                     for idEnemy in enemies_pos:
@@ -97,27 +88,20 @@ class Spiel:
             pg.draw.line(self.bildschirm, GREY, (0, x), (WIDTH, x))
 
     def draw_snake(self):
-        print('Draw', self.spieler.pos, self.enemies[0].pos)
+        # print('Draw', self.spieler.pos, self.enemies[0].pos)
         for pos in self.spieler.snake:
             self.bildschirm.blit(self.spieler.snake_skin, pos)
 
         for player in self.enemies:
             for pos in player.snake:
-                print(pos)
                 self.bildschirm.blit(player.snake_skin, pos)
-
 
     def start_cliente(self):
         self.connection = Client()
 
     def startbildschirm(self):
-        botao_server = pg.rect.Rect(8 * TILESIZE, HEIGHT / 2.5, 300, 150)
-        text_server = pg.font.SysFont('arial', 40).render('server', True, PURPLE)
-        text_server_rect = text_server.get_rect()
-        text_server_rect.center = botao_server.center
-
-        botao_client = pg.rect.Rect(37 * TILESIZE, HEIGHT / 2.5, 300, 150)
-        text_client = pg.font.SysFont('arial', 40).render('client', True, PURPLE)
+        botao_client = pg.rect.Rect(23 * TILESIZE, HEIGHT / 2.5, 300, 150)
+        text_client = pg.font.SysFont('arial', 40).render('PLAY', True, BLUE)
         text_client_rect = text_client.get_rect()
         text_client_rect.center = botao_client.center
 
@@ -125,7 +109,7 @@ class Spiel:
                                                           GREY)
 
         while self.state == MENU:
-            self.bildschirm.fill(PURPLE)
+            self.bildschirm.fill(BLUE)
             mouse = pg.mouse.get_pos()
 
             for event in pg.event.get():
@@ -135,24 +119,15 @@ class Spiel:
 
                 if event.type == pg.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
-                    if botao_server.collidepoint(mouse_pos):
-                        self.state = "OUT"
-                        self.running = False
-                        print("server")
-                    elif botao_client.collidepoint(mouse_pos):
+                    if botao_client.collidepoint(mouse_pos):
                         self.state = CONNECTING
                         self.start_cliente()
                         print("client")
 
-            if botao_server.collidepoint(mouse):
-                pg.draw.rect(self.bildschirm, GREY, botao_server)
-            else:
-                pg.draw.rect(self.bildschirm, BLACK, botao_server)
             if botao_client.collidepoint(mouse):
                 pg.draw.rect(self.bildschirm, GREY, botao_client)
             else:
                 pg.draw.rect(self.bildschirm, BLACK, botao_client)
-            self.bildschirm.blit(text_server, text_server_rect)
             self.bildschirm.blit(text_client, text_client_rect)
             self.bildschirm.blit(text_credits, (WIDTH / 2 + 40, HEIGHT - 90))
             pg.display.update()

@@ -16,7 +16,7 @@ class Server(Thread):
     def run(self):
         try:
             self.soc.listen(5)
-            print('Server Iniciado', 'Waiting Connection')
+            print('Server initialized.', '\nWaiting for conection...\n')
             while True:
                 connection, adress = self.soc.accept()
                 self.spielen.append(PlayerConnection(connection, adress, len(self.spielen), self.get_enemies_pos))
@@ -55,7 +55,7 @@ class PlayerConnection(Thread):
         try:
             while self.state == 'waiting':
                 msg = self.connection.recv(1024).decode('utf-8')
-                print('Snake (' + str(self.id) + ') says :', msg)
+                # print('Snake (' + str(self.id) + ') says :', msg)
                 enemies_pos = self.get_enemies_pos(self.id)
                 temp = self.format_spielen_pos(enemies_pos)
                 if temp == '':
@@ -68,13 +68,13 @@ class PlayerConnection(Thread):
 
             while self.state == 'starting':
                 msg = self.connection.recv(1024).decode('utf-8')
-                print('Snake (' + str(self.id) + ') says :', msg)
+                # print('Snake (' + str(self.id) + ') says :', msg)
                 self.connection.send('start'.encode())
                 self.state = 'playing'
 
             while self.state == 'playing':
                 newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')  # Recebe posição Player
-                print('Snake (' + str(self.id) + '):', newPosX, newPosY)
+                # print('Snake (' + str(self.id) + '):', newPosX, newPosY)
                 self.pos.set(newPosX, newPosY)
                 self.connection.send(self.format_spielen_pos(self.get_enemies_pos(self.id)).encode())  # manda posição inimigo "0,0,1; 0,012"
 

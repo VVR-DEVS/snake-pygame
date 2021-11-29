@@ -1,4 +1,3 @@
-import pygame as pg
 from Game import *
 
 g = Spiel()
