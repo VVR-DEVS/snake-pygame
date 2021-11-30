@@ -55,7 +55,7 @@ class Spiel:
             elif self.state == PLAYING:
                 try:
                     while self.state == PLAYING:
-                        self.clock.tick(10)
+                        self.clock.tick(FPS)
                         self.events()
                         self.aktualisieren()
                         self.draw()

@@ -28,21 +28,21 @@ class Snake:
 
         if self.direction == 'left':
             if self.snake[0][0] == 0:
-                self.snake[0] = (WIDTH, self.snake[0][1])
+                self.snake[0] = (WIDTH - TILESIZE, self.snake[0][1])
             else:
                 self.snake[0] = (self.snake[0][0] - TILESIZE, self.snake[0][1])
         elif self.direction == 'right':
-            if self.snake[0][0] == WIDTH:
+            if self.snake[0][0] == WIDTH - TILESIZE:
                 self.snake[0] = (0, self.snake[0][1])
             else:
                 self.snake[0] = (self.snake[0][0] + TILESIZE, self.snake[0][1])
         elif self.direction == 'up':
             if self.snake[1][1] == 0:
-                self.snake[0] = (self.snake[0][0], HEIGHT)
+                self.snake[0] = (self.snake[0][0], HEIGHT - TILESIZE)
             else:
                 self.snake[0] = (self.snake[0][0], self.snake[0][1] - TILESIZE)
         else:
-            if self.snake[1][1] == HEIGHT:
+            if self.snake[1][1] == HEIGHT - TILESIZE:
                 self.snake[0] = (self.snake[0][0], 0)
             else:
                 self.snake[0] = (self.snake[0][0], self.snake[0][1] + TILESIZE)
