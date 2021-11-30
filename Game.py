@@ -17,6 +17,7 @@ class Spiel:
         self.connection = None
         self.enemies = []
         self.spieler = None
+        self.moving = True
 
         # TODO: Menu prá selecionar tipo de match após selecionar jogo online (2 ou 4 players)
         self.num_players_match = 2
@@ -90,7 +91,8 @@ class Spiel:
         self.bildschirm.fill(BLACK)
         self.draw_grid()
         self.draw_snake()
-        pg.display.flip()
+        if self.verify_colissions() and self.moving:
+            pg.display.flip()
 
     def draw_grid(self):
         self.spieler.update()
@@ -106,6 +108,14 @@ class Spiel:
         for player in self.enemies:
             for pos in player.snake:
                 self.bildschirm.blit(player.snake_skin, pos)
+
+    def verify_colissions(self):
+        for enemy in self.enemies:
+            for enemy_block in enemy.snake:
+                if self.spieler.snake[0] == enemy_block:
+                    self.moving = False
+                    return False
+        return True
 
     def start_cliente(self):
         self.connection = Client()
