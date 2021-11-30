@@ -9,8 +9,14 @@ class Client(object):
     def __init__(self):
         self.soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def connect(self):
+    def connect(self, num_players_match):
         self.soc.connect((HOST, PORT))
+        msg = self.soc.recv(1024).decode('utf-8')
+        print('Recebido:', msg)
+        if msg == 'connected':
+            self.soc.send(str(num_players_match).encode())
+        else:
+            return None
         pos = Position(self.soc.recv(1024).decode('utf-8'))
         return pos
 

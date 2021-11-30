@@ -18,6 +18,9 @@ CONNECTING = "connecting"
 WAITING = "waiting"
 MENU = "menu"
 
-PLAYERS_MAX = 2
-PORT = 5551
+PLAYERS_MAX = 4
+PORT = 5553
 HOST = 'localhost'
+
+# Possible number of player in matches
+NUM_PLAYERS_MATCHES = [2, 4]

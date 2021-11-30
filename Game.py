@@ -18,6 +18,9 @@ class Spiel:
         self.enemies = []
         self.spieler = None
 
+        # TODO: Menu prá selecionar tipo de match após selecionar jogo online (2 ou 4 players)
+        self.num_players_match = 2
+
     def neueSpiel(self):
         self.run()
 
@@ -28,7 +31,10 @@ class Spiel:
                 self.startbildschirm()
             elif self.state == CONNECTING:
                 try:
-                    pos = self.connection.connect()
+                    pos = self.connection.connect(self.num_players_match)
+                    if pos is None:
+                        self.state = MENU
+                        continue
                     self.spieler = Snake(pos)
                     self.state = WAITING
                 except Exception as e:
