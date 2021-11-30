@@ -5,6 +5,5 @@ g.startbildschirm()
 
 while g.running:
     g.neueSpiel()
-    g.endbildschirm()
 
 pg.quit()

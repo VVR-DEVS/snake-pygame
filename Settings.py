@@ -9,7 +9,7 @@ PURPLE = (128, 0, 128)
 BLUE = (0, 55, 55)
 PINK = (248, 24, 148)
 
-TILESIZE = 32
+TILESIZE = 16
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
@@ -18,5 +18,6 @@ CONNECTING = "connecting"
 WAITING = "waiting"
 MENU = "menu"
 
+PLAYERS_MAX = 2
 PORT = 5551
 HOST = 'localhost'

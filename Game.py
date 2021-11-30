@@ -17,7 +17,6 @@ class Spiel:
         self.connection = None
         self.enemies = []
         self.spieler = None
-        self.server = None
 
     def neueSpiel(self):
         self.run()
@@ -28,9 +27,13 @@ class Spiel:
             if self.state == MENU:
                 self.startbildschirm()
             elif self.state == CONNECTING:
-                pos = self.connection.connect()
-                self.spieler = Snake(pos)
-                self.state = WAITING
+                try:
+                    pos = self.connection.connect()
+                    self.spieler = Snake(pos)
+                    self.state = WAITING
+                except Exception as e:
+                    print(f'Exceção: {str(e)}')
+                    self.state = MENU
             elif self.state == WAITING:
                 id_list = []
                 while True:
@@ -44,11 +47,15 @@ class Spiel:
                             self.enemies.append(Snake(enemies_pos[idEnemy], idEnemy))
 
             elif self.state == PLAYING:
-                while self.state == PLAYING:
-                    self.clock.tick(10)
-                    self.events()
-                    self.aktualisieren()
-                    self.draw()
+                try:
+                    while self.state == PLAYING:
+                        self.clock.tick(10)
+                        self.events()
+                        self.aktualisieren()
+                        self.draw()
+                except Exception as e:
+                    print(f"Exceção: {str(e)}\nConexão com o server perdida.")
+                    self.state = MENU
 
     def aktualisieren(self):
         enemies_pos = self.connection.send(self.spieler.pos)
@@ -58,13 +65,8 @@ class Spiel:
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                self.server.close()
                 self.state = "OUT"
                 self.running = False
-
-            if event.type == pg.K_ESCAPE:
-                self.state = MENU
-
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
                     self.spieler.change_direction('up')
@@ -74,6 +76,9 @@ class Spiel:
                     self.spieler.change_direction('right')
                 if event.key == pg.K_LEFT:
                     self.spieler.change_direction('left')
+                if event.key == pg.K_ESCAPE:
+                    # TODO enviar msg para o server
+                    self.state = MENU
 
     def draw(self):
         self.bildschirm.fill(BLACK)
@@ -113,16 +118,18 @@ class Spiel:
             mouse = pg.mouse.get_pos()
 
             for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    self.state = "OUT"
-                    self.running = False
-
                 if event.type == pg.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     if botao_client.collidepoint(mouse_pos):
                         self.state = CONNECTING
                         self.start_cliente()
-                        print("client")
+                elif event.type == pg.QUIT:
+                    self.state = "OUT"
+                    self.running = False
+                elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        self.state = "OUT"
+                        self.running = False
 
             if botao_client.collidepoint(mouse):
                 pg.draw.rect(self.bildschirm, GREY, botao_client)
@@ -131,6 +138,3 @@ class Spiel:
             self.bildschirm.blit(text_client, text_client_rect)
             self.bildschirm.blit(text_credits, (WIDTH / 2 + 40, HEIGHT - 90))
             pg.display.update()
-
-    def endbildschirm(self):
-        pass

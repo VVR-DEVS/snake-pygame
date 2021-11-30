@@ -2,7 +2,7 @@ import socket
 from threading import Thread
 from position import Position
 
-from Settings import PORT, HOST
+from Settings import PORT, HOST, PLAYERS_MAX
 
 
 class Server(Thread):
@@ -63,7 +63,7 @@ class PlayerConnection(Thread):
                 else:
                     self.connection.send(temp.encode())
 
-                if len(enemies_pos) + 1 == 2:
+                if len(enemies_pos) + 1 == PLAYERS_MAX:
                     self.state = 'starting'
 
             while self.state == 'starting':
@@ -72,12 +72,14 @@ class PlayerConnection(Thread):
                 self.connection.send('start'.encode())
                 self.state = 'playing'
 
-            while self.state == 'playing':
-                newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')  # Recebe posição Player
-                # print('Snake (' + str(self.id) + '):', newPosX, newPosY)
-                self.pos.set(newPosX, newPosY)
-                self.connection.send(self.format_spielen_pos(self.get_enemies_pos(self.id)).encode())  # manda posição inimigo "0,0,1; 0,012"
-
+            try:
+                while self.state == 'playing':
+                    newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')  # Recebe posição Player
+                    # print('Snake (' + str(self.id) + '):', newPosX, newPosY)
+                    self.pos.set(newPosX, newPosY)
+                    self.connection.send(self.format_spielen_pos(self.get_enemies_pos(self.id)).encode())  # manda posição inimigo "0,0,1; 0,012"
+            except:
+                print('Conexão com o server perdida.')
             self.connection.close()
         except Exception as e:
             print('Player', self.id, ':', e)
