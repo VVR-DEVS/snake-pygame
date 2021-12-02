@@ -20,3 +20,21 @@ class Position:
 
     def __str__(self):
         return str(self.x) + "," + str(self.y)
+
+
+class BodyPosition:
+
+    def __init__(self, body_pos):  # [(0, 1), (1, 1), (2, 1)]
+        self.body = body_pos
+
+    def set(self, body_pos):
+        self.body = body_pos
+
+    def get(self):
+        return self.body
+
+    def __str__(self):
+        body_pos = ''
+        for i in self.body:
+            body_pos += f'{i[0]},{i[1]}-'  # '0,1-1,1-2,1-'
+        return body_pos

@@ -67,3 +67,13 @@ class Snake:
 
         self.snake[0] = (int(pos.x), int(pos.y))
         self.pos.set(self.snake[0][0], self.snake[0][1])
+
+    def enemy_set_position(self, body_pos):
+        self.snake = body_pos
+
+    def snake_body_pos(self):
+        body_pos = ''
+        for i in self.snake:
+            body_pos += f'{i[0]},{i[1]}-'  # '0,1-1,1-2,1-'
+        print('Snake().snake_body_pos:', body_pos)
+        return body_pos

@@ -50,6 +50,7 @@ class Spiel:
                         break
                     for idEnemy in enemies_pos:
                         if idEnemy not in id_list:
+                            print('last warning...')
                             id_list.append(idEnemy)
                             self.enemies.append(Snake(enemies_pos[idEnemy], idEnemy))
 
@@ -65,7 +66,8 @@ class Spiel:
                     self.state = MENU
 
     def aktualisieren(self):
-        enemies_pos = self.connection.send(self.spieler.pos)
+        # enemies_pos = self.connection.send(self.spieler.pos)
+        enemies_pos = self.connection.send(self.spieler.snake_body_pos)
         for idEnemy in enemies_pos:
             next(filter(lambda enemy: idEnemy == enemy.id, self.enemies)).set_position(enemies_pos[idEnemy])
 
@@ -85,6 +87,7 @@ class Spiel:
                     self.spieler.change_direction('left')
                 if event.key == pg.K_ESCAPE:
                     # TODO enviar msg para o server
+                    self.connection.disconnect()
                     self.state = MENU
 
     def draw(self):

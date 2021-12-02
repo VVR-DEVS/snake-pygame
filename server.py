@@ -1,6 +1,6 @@
 import socket
 from threading import Thread
-from position import Position
+from position import Position, BodyPosition
 
 from Settings import PORT, HOST, PLAYERS_MAX
 
@@ -112,6 +112,7 @@ class PlayerConnection(Thread):
         self.get_enemies_pos = get_enemies_pos
         self.close_match = close_match
         self.pos = Position(id_player + 1 * 20, 10)
+        self.body = BodyPosition([(id_player + 1 * 20, 10)])
         self.connection.send(str(self.pos).encode())
         self.state = "waiting"
 
@@ -138,10 +139,12 @@ class PlayerConnection(Thread):
 
             try:
                 while self.state == 'playing':
-                    newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')  # Recebe posição Player
+                    # newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')  # Recebe posição Player
+                    newPos = self.connection.recv(1024).decode('utf-8')  # Recebe pos completa do Player de client().send
                     # print('Snake (' + str(self.id) + '):', newPosX, newPosY)
-                    self.pos.set(newPosX, newPosY)
-                    self.connection.send(self.format_spielen_pos(self.get_enemies_pos(self.id)).encode())  # manda posição inimigo "0,0,1; 0,012"
+                    # self.pos.set(newPosX, newPosY)
+                    # self.connection.send(self.format_spielen_pos(self.get_enemies_pos(self.id)).encode())  # manda posição inimigo "0,0,1; 0,012"
+                    self.connection.send(f'{newPos}-{self.id}'.encode())  # '0,1-1,1-2,1-|1' último número é o id | manda para...
             except Exception as e:
                 print(e)
                 print('Conexão com o cliente perdida.')
@@ -154,6 +157,13 @@ class PlayerConnection(Thread):
             self.connection.close()
             self.close_match(None)
 
+    def format_spielen_body_pos(self, body_pos):  # '0,1-1,1-2,1-' -> [(0, 1), (1, 1), (2, 1)]
+        body_pos_list = []
+        for coordinate in body_pos.split('-'):
+            posX, posY = coordinate.split(',')
+            body_pos_list.append((posX, posY))
+        return body_pos_list
+
     @staticmethod
     def format_spielen_pos(positions):
         return ';'.join(positions)
@@ -161,7 +171,7 @@ class PlayerConnection(Thread):
 
 def start_server():
     try:
-        server = Server()
+        Server()
     except Exception as e:
         print('Server :', e)
 
