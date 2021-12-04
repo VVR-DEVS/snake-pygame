@@ -1,7 +1,7 @@
 import socket
 
-from position import Position
-from Settings import PORT, HOST
+from utils.position import Position
+from utils.settings import PORT, HOST
 
 
 class Client(object):
@@ -22,22 +22,22 @@ class Client(object):
 
     def wait_start(self):
         self.soc.send(b"waiting")
-        resp = self.soc.recv(1024).decode('utf-8')
-        if resp == 'start':
+        enemis_pos_data = self.soc.recv(1024).decode('utf-8')
+        if enemis_pos_data == 'start':
             return None
 
-        if resp == 'NEY':
+        if enemis_pos_data == 'NEY':  # No Enemies Yet
             return {}
 
         enemies_pos = []
-        for i in resp.split(';'):
+        for i in enemis_pos_data.split(';'):
             item = i.split(',')
             enemies_pos.append((item[2], Position(int(item[0]), int(item[1]))))
         return dict(enemies_pos)
 
-    def send(self, body_pos):
+    def update_data(self, body_pos):
         print('body pos recebindo em send clinet:', body_pos)
-        self.soc.send(str(body_pos).encode())  # '0,1-1,1-2,1-' enviando para...
+        self.soc.send(str(body_pos).encode())  # '0,1-1,1-2,1-' enviando para PlayerConnection().run
         enemies_pos = []
         resp = self.soc.recv(1024).decode('utf-8')  # recebendo de...
         print('resp recebido no soc:', resp)

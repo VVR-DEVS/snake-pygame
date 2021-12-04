@@ -1,8 +1,8 @@
 import socket
 from threading import Thread
-from position import Position, BodyPosition
+from utils.position import Position, BodyPosition
 
-from Settings import PORT, HOST, PLAYERS_MAX
+from utils.settings import PORT, HOST
 
 
 class Server:
@@ -88,7 +88,8 @@ class Match:
         positions = []
         for spieler in self.spielen:
             if spieler.id != id_spieler:
-                positions.append(','.join([str(spieler.pos), str(spieler.id)]))
+                for spieler_body_part in spieler.body.body:
+                    positions.append(','.join([str(spieler.pos), str(spieler.id)]))
         return positions
 
     def close_match(self, id_spieler):
@@ -119,14 +120,14 @@ class PlayerConnection(Thread):
     def run(self):
         try:
             while self.state == 'waiting':
-                msg = self.connection.recv(1024).decode('utf-8')
+                self.connection.recv(1024).decode('utf-8')  # recebendo de Client().wait_start
                 # print('Snake (' + str(self.id) + ') says :', msg)
                 enemies_pos = self.get_enemies_pos(self.id)
-                temp = self.format_spielen_pos(enemies_pos)
-                if temp == '':
+                enemis_pos_data = self.format_spielen_pos(enemies_pos)
+                if enemis_pos_data == '':
                     self.connection.send('NEY'.encode())
                 else:
-                    self.connection.send(temp.encode())
+                    self.connection.send(enemis_pos_data.encode())
 
                 if len(enemies_pos) + 1 == self.max_player:
                     self.state = 'starting'

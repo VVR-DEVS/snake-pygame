@@ -1,4 +1,4 @@
-from Game import *
+from client.spiel import *
 
 g = Spiel()
 g.startbildschirm()

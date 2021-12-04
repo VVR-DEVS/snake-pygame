@@ -1,7 +1,7 @@
 import pygame as pg
-from Snake import Snake
-from Settings import *
-from client import Client
+from snake import Snake
+from utils.settings import *
+from client.client import Client
 
 
 class Spiel:
@@ -67,7 +67,7 @@ class Spiel:
 
     def aktualisieren(self):
         # enemies_pos = self.connection.send(self.spieler.pos)
-        enemies_pos = self.connection.send(self.spieler.snake_body_pos)
+        enemies_pos = self.connection.update_data(self.spieler.snake_body_pos)
         for idEnemy in enemies_pos:
             next(filter(lambda enemy: idEnemy == enemy.id, self.enemies)).set_position(enemies_pos[idEnemy])
 

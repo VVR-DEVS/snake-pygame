@@ -1,5 +1,5 @@
 import pygame as pg
-from Settings import *
+from utils.settings import *
 
 
 class Snake:
