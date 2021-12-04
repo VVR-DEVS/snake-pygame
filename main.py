@@ -7,3 +7,6 @@ while g.running:
     g.neueSpiel()
 
 pg.quit()
+
+
+
