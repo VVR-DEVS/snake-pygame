@@ -12,8 +12,8 @@ class Position:
             raise Exception('Argumento inválido em Position')
 
     def set(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = int(x)
+        self.y = int(y)
 
     def get(self):
         return self.x, self.y
