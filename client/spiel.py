@@ -1,10 +1,13 @@
 import pygame as pg
-from snake import Snake
+from client import Snake, Client
 from utils.settings import *
-from client.client import Client
 
 
 class Spiel:
+    PLAYING = 0
+    CONNECTING = 1
+    WAITING = 2
+    MENU = 3
 
     def __init__(self):
 
@@ -13,7 +16,7 @@ class Spiel:
         self.clock = pg.time.Clock()
         pg.display.set_caption(TITLE)
         self.running = True
-        self.state = MENU
+        self.state = self.MENU
         self.connection = None
         self.enemies = []
         self.spieler = None
@@ -28,25 +31,25 @@ class Spiel:
     def run(self):
 
         while self.running:
-            if self.state == MENU:
+            if self.state == self.MENU:
                 self.startbildschirm()
-            elif self.state == CONNECTING:
+            elif self.state == self.CONNECTING:
                 try:
                     pos = self.connection.connect(self.num_players_match)
                     if pos is None:
-                        self.state = MENU
+                        self.state = self.MENU
                         continue
                     self.spieler = Snake(pos)
-                    self.state = WAITING
+                    self.state = self.WAITING
                 except Exception as e:
                     print(f'Exceção: {str(e)}')
-                    self.state = MENU
-            elif self.state == WAITING:
+                    self.state = self.MENU
+            elif self.state == self.WAITING:
                 id_list = []
                 while True:
                     enemies_pos = self.connection.wait_start()
                     if enemies_pos is None:
-                        self.state = PLAYING
+                        self.state = self.PLAYING
                         break
                     for idEnemy in enemies_pos:
                         if idEnemy not in id_list:
@@ -54,16 +57,16 @@ class Spiel:
                             id_list.append(idEnemy)
                             self.enemies.append(Snake(enemies_pos[idEnemy], idEnemy))
 
-            elif self.state == PLAYING:
+            elif self.state == self.PLAYING:
                 try:
-                    while self.state == PLAYING:
+                    while self.state == self.PLAYING:
                         self.clock.tick(FPS)
                         self.events()
                         self.aktualisieren()
                         self.draw()
                 except Exception as e:
                     print(f"Exceção: {str(e)}\nConexão com o server perdida.")
-                    self.state = MENU
+                    self.state = self.MENU
 
     def aktualisieren(self):
         # enemies_pos = self.connection.send(self.spieler.pos)
@@ -78,22 +81,21 @@ class Spiel:
                 self.running = False
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
-                    self.spieler.change_direction('up')
+                    self.spieler.change_direction(Snake.UP)
                 if event.key == pg.K_DOWN:
-                    self.spieler.change_direction('down')
+                    self.spieler.change_direction(Snake.DOWN)
                 if event.key == pg.K_RIGHT:
-                    self.spieler.change_direction('right')
+                    self.spieler.change_direction(Snake.RIGHT)
                 if event.key == pg.K_LEFT:
-                    self.spieler.change_direction('left')
+                    self.spieler.change_direction(Snake.LEFT)
                 if event.key == pg.K_ESCAPE:
-                    # TODO enviar msg para o server
                     self.connection.disconnect()
-                    self.state = MENU
+                    self.state = self.MENU
 
     def draw(self):
         self.bildschirm.fill(BLACK)
         self.draw_grid()
-        self.draw_snake()
+        self.draw_snakes()
         if self.verify_colissions() and self.moving:
             pg.display.flip()
 
@@ -103,14 +105,11 @@ class Spiel:
             pg.draw.line(self.bildschirm, GREY, (x, 0), (x, HEIGHT))
             pg.draw.line(self.bildschirm, GREY, (0, x), (WIDTH, x))
 
-    def draw_snake(self):
-        # print('Draw', self.spieler.pos, self.enemies[0].pos)
-        for pos in self.spieler.snake:
-            self.bildschirm.blit(self.spieler.snake_skin, pos)
+    def draw_snakes(self):
+        self.spieler.draw(self.bildschirm)
 
         for player in self.enemies:
-            for pos in player.snake:
-                self.bildschirm.blit(player.snake_skin, pos)
+            player.draw(self.bildschirm)
 
     def verify_colissions(self):
         for enemy in self.enemies:
@@ -132,7 +131,7 @@ class Spiel:
         text_credits = pg.font.SysFont('sans', 20).render('developed by: Mateus Rosario and Wercton Barbosa', True,
                                                           GREY)
 
-        while self.state == MENU:
+        while self.state == self.MENU:
             self.bildschirm.fill(BLUE)
             mouse = pg.mouse.get_pos()
 
@@ -140,7 +139,7 @@ class Spiel:
                 if event.type == pg.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     if botao_client.collidepoint(mouse_pos):
-                        self.state = CONNECTING
+                        self.state = self.CONNECTING
                         self.start_cliente()
                 elif event.type == pg.QUIT:
                     self.state = "OUT"

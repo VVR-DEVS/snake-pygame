@@ -3,24 +3,22 @@ WIDTH = 1024
 HEIGHT = 768
 BILDSCHIRM_SIZE = (WIDTH, HEIGHT)
 FPS = 10
+
+# COLORS THEMES
 BLACK = (0, 0, 0)
 GREY = (25, 25, 25)
 PURPLE = (128, 0, 128)
 BLUE = (0, 55, 55)
 PINK = (248, 24, 148)
 
+# GAME WORK SETTINGS
 TILESIZE = 16
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
-PLAYING = "playing"
-CONNECTING = "connecting"
-WAITING = "waiting"
-MENU = "menu"
-
-PLAYERS_MAX = 4
-PORT = 5553
-HOST = 'localhost'
-
 # Possible number of player in matches
 NUM_PLAYERS_MATCHES = [2, 4]
+
+# Server Adress
+PORT = 5553
+HOST = 'localhost'

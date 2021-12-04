@@ -1,6 +1,6 @@
 import socket
 from threading import Thread
-from utils.position import Position, BodyPosition
+from utils.position import Position
 
 from utils.settings import PORT, HOST
 
@@ -88,7 +88,7 @@ class Match:
         positions = []
         for spieler in self.spielen:
             if spieler.id != id_spieler:
-                for spieler_body_part in spieler.body.body:
+                for spieler_body_part in spieler.body:
                     positions.append(','.join([str(spieler.pos), str(spieler.id)]))
         return positions
 
@@ -113,7 +113,7 @@ class PlayerConnection(Thread):
         self.get_enemies_pos = get_enemies_pos
         self.close_match = close_match
         self.pos = Position(id_player + 1 * 20, 10)
-        self.body = BodyPosition([(id_player + 1 * 20, 10)])
+        self.body = [(id_player + 1 * 20, 10)]
         self.connection.send(str(self.pos).encode())
         self.state = "waiting"
 

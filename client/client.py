@@ -1,5 +1,4 @@
 import socket
-
 from utils.position import Position
 from utils.settings import PORT, HOST
 
