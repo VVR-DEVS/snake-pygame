@@ -1,5 +1,6 @@
 import pygame as pg
 from utils.settings import *
+from utils.position import Position
 
 
 class Snake:
@@ -10,12 +11,14 @@ class Snake:
 
     def __init__(self, pos, id_player=None):
         self.id = id_player
-        self.pos = pos
-        self.body = self.generate_body(3, pos, self.LEFT)
         self.snake_skin = pg.Surface((TILESIZE, TILESIZE))
-        if not id_player:
+        if id_player is None:  # vem corpo inteiro como pos (pode mudar depois pra no primeiro vir só o pos)
+            self.pos = pos
+            self.body = self.generate_body(3, pos, self.LEFT)
             self.snake_skin.fill((255, 0, 0))
         else:
+            self.pos = pos[0]
+            self.body = pos
             self.snake_skin.fill((0, 255, 0))
         self.direction = self.UP
 
@@ -30,8 +33,8 @@ class Snake:
             return [(pos.x + i, pos.y) for i in range(size)]
 
     def draw(self, bildschirm):
-        for pos in self.body:
-            bildschirm.blit(self.snake_skin, pos * TILESIZE)
+        for pos in self.body:  # TODO corrigir: body de enemy está vindo como str
+            bildschirm.blit(self.snake_skin, (int(pos[0]) * TILESIZE, int(pos[1]) * TILESIZE))
 
     def update(self):  # TODO: Adaptar Coordenadas para não trabalhar com TALESIZE, WIDTH
         for i in range(len(self.body) - 1, 0, -1):
@@ -39,24 +42,24 @@ class Snake:
 
         if self.direction == self.LEFT:
             if self.body[0][0] == 0:
-                self.body[0] = (WIDTH - TILESIZE, self.body[0][1])
+                self.body[0] = (63, self.body[0][1])
             else:
-                self.body[0] = (self.body[0][0] - TILESIZE, self.body[0][1])
+                self.body[0] = (self.body[0][0] - 1, self.body[0][1])
         elif self.direction == self.RIGHT:
-            if self.body[0][0] == WIDTH - TILESIZE:
+            if self.body[0][0] == 63:
                 self.body[0] = (0, self.body[0][1])
             else:
-                self.body[0] = (self.body[0][0] + TILESIZE, self.body[0][1])
+                self.body[0] = (self.body[0][0] + 1, self.body[0][1])
         elif self.direction == self.UP:
             if self.body[1][1] == 0:
-                self.body[0] = (self.body[0][0], HEIGHT - TILESIZE)
+                self.body[0] = (self.body[0][0], 47)
             else:
-                self.body[0] = (self.body[0][0], self.body[0][1] - TILESIZE)
+                self.body[0] = (self.body[0][0], self.body[0][1] - 1)
         else:
-            if self.body[1][1] == HEIGHT - TILESIZE:
+            if self.body[1][1] == 47:
                 self.body[0] = (self.body[0][0], 0)
             else:
-                self.body[0] = (self.body[0][0], self.body[0][1] + TILESIZE)
+                self.body[0] = (self.body[0][0], self.body[0][1] + 1)
 
         self.pos.set(self.body[0][0], self.body[0][1])
 
@@ -85,8 +88,10 @@ class Snake:
     def snake_body_pos(self):
         body_pos = ''
         for i in self.body:
-            body_pos += f'{i[0]},{i[1]}-'  # '0,1-1,1-2,1-'
-        print('Snake().snake_body_pos:', body_pos)
+            if not self.id:
+                body_pos += f'{i[0]},{i[1]}-'  # '0,1-1,1-2,1-'
+            else:
+                body_pos += f'{i.x},{i.y}-'
         return body_pos
 
     def __str__(self):

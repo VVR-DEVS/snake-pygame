@@ -20,5 +20,5 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 NUM_PLAYERS_MATCHES = [2, 4]
 
 # Server Adress
-PORT = 5553
+PORT = 5573
 HOST = 'localhost'

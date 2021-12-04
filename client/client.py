@@ -21,39 +21,41 @@ class Client(object):
 
     def wait_start(self):
         self.soc.send(b"waiting")
-        enemis_pos_data = self.soc.recv(1024).decode('utf-8')
-        if enemis_pos_data == 'start':
-            return None
+        enemies_pos_data = self.soc.recv(1024).decode('utf-8')  # recebendo de server().run
 
-        if enemis_pos_data == 'NEY':  # No Enemies Yet
+        if enemies_pos_data == 'start':
+            return None
+        if enemies_pos_data == 'NEY':  # No Enemies Yet
             return {}
 
         enemies_pos = []
-        for i in enemis_pos_data.split(';'):
-            item = i.split(',')
-            enemies_pos.append((item[2], Position(int(item[0]), int(item[1]))))
-        return dict(enemies_pos)
+        for i in enemies_pos_data.split(';'):
+            item = i.split('|')
+            id_enemy = int(item[-1])
+            position = []
+            coordinates = item[0].split('-')
+            for coordinate in coordinates:
+                if coordinate:
+                    x, y = coordinate.split(',')
+                    position.append((x, y))
+            enemies_pos.append((id_enemy, position))
+        return dict(enemies_pos)  # {'0': [<utils.position.Position object at 0x7f8cc6206a00>, <utils.position.Position object at 0x7f8cc6206ac0>, <utils.position.Position object at 0x7f8cc6206b50>]}
 
     def update_data(self, body_pos):
-        print('body pos recebindo em send clinet:', body_pos)
+        print('body pos recebindo em send client:', body_pos)
         self.soc.send(str(body_pos).encode())  # '0,1-1,1-2,1-' enviando para PlayerConnection().run
         enemies_pos = []
         resp = self.soc.recv(1024).decode('utf-8')  # recebendo de...
         print('resp recebido no soc:', resp)
         for snake in resp.split(';'):
+            snake_id = snake[-1]
+            snake = snake[:-3]  # 1,10-20,10-19,10--1 -> 1,10-20,10-19,10
+            print('snake body: ', snake)
             coordinates = []
-            snake_id = None
             for body_part in snake.split('-'):
-                print('AQUIIIIII')
-                if '|' in body_part:
-                    print('?')
-                    snake_id = body_part.replace('|', '')
-                else:
-                    print(body_part)
-                    x, y = body_part.split(',')
-                    coordinates.append((x, y))
+                x, y = body_part.split(',')
+                coordinates.append((x, y))
             enemies_pos.append((int(snake_id), coordinates))
-        print("ALLES GUT!")
         return dict(enemies_pos)
 
     def send_signal(self, signal):

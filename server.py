@@ -68,13 +68,13 @@ class Match:
         self.num_players = num_players
         self.spielen = []
         self.spielen.append(PlayerConnection(fist_player_connection, fist_player_adrres, len(self.spielen),
-                                             self.num_players, self.get_enemies_pos, self.close_match))
+                                             self.num_players, self.get_enemies_body, self.close_match))
         print('Match(' + str(self.id) + ') ... 1/' + str(self.num_players) + ' players connected.\n')
         self.spielen[-1].start()
         self.state = self.WAITING
 
     def add_player(self, connection, adress):
-        self.spielen.append(PlayerConnection(connection, adress, len(self.spielen), self.num_players, self.get_enemies_pos,
+        self.spielen.append(PlayerConnection(connection, adress, len(self.spielen), self.num_players, self.get_enemies_body,
                                              self.close_match))
         print('Match(' + str(self.id) + ') ... ' + str(len(self.spielen)) + '/' + str(self.num_players) +
               ' players connected.')
@@ -89,7 +89,16 @@ class Match:
         for spieler in self.spielen:
             if spieler.id != id_spieler:
                 for spieler_body_part in spieler.body:
+                    print(spieler.body)
                     positions.append(','.join([str(spieler.pos), str(spieler.id)]))
+        return positions
+
+    def get_enemies_body(self, id_spieler):  # [(21, 10), (21, 11), (21, 12)]
+        positions = []
+        for spieler in self.spielen:
+            if spieler.id != id_spieler:
+                print('spieler.body', format_spielen_pos_to_string(spieler.body))
+                positions.append(format_spielen_pos_to_string(spieler.body) + '|' + str(id_spieler))
         return positions
 
     def close_match(self, id_spieler):
@@ -100,6 +109,22 @@ class Match:
         else:
             print('Match(' + self.id + ') Ended')
             self.close_match_server(self.id)
+
+
+def format_spielen_pos_to_list(body_pos):  # '0,1-1,1-2,1-' -> [(0, 1), (1, 1), (2, 1)]
+    body_pos_list = []
+    for coordinate in body_pos.split('-'):
+        posX, posY = coordinate.split(',')
+        body_pos_list.append((posX, posY))
+    return body_pos_list
+
+
+def format_spielen_pos_to_string(body):  # [(0, 1), (1, 1), (2, 1)] -> '0,1-1,1-2,1-'
+    body_pos = ''
+    for i in body:
+        body_pos += f'{i[0]},{i[1]}-'
+    print('Snake().snake_body_pos:', body_pos)
+    return body_pos
 
 
 class PlayerConnection(Thread):
@@ -113,21 +138,24 @@ class PlayerConnection(Thread):
         self.get_enemies_pos = get_enemies_pos
         self.close_match = close_match
         self.pos = Position(id_player + 1 * 20, 10)
-        self.body = [(id_player + 1 * 20, 10)]
+        # self.body = [(id_player + 1 * 20, 10)]
+        self.body = [(self.pos.x, self.pos.y + i) for i in range(3)]
         self.connection.send(str(self.pos).encode())
         self.state = "waiting"
 
     def run(self):
         try:
             while self.state == 'waiting':
-                self.connection.recv(1024).decode('utf-8')  # recebendo de Client().wait_start
-                # print('Snake (' + str(self.id) + ') says :', msg)
+                msg = self.connection.recv(1024).decode('utf-8')  # recebendo de Client().wait_start
+                print('Snake (' + str(self.id) + ') says :', msg)
                 enemies_pos = self.get_enemies_pos(self.id)
-                enemis_pos_data = self.format_spielen_pos(enemies_pos)
-                if enemis_pos_data == '':
+                print('ASSIM ----> ', enemies_pos)
+                enemies_pos_data = self.format_spielen_pos(enemies_pos)
+                if enemies_pos_data == '':
                     self.connection.send('NEY'.encode())
                 else:
-                    self.connection.send(enemis_pos_data.encode())
+                    print('server-enemies_pos_data:', enemies_pos_data)
+                    self.connection.send(enemies_pos_data.encode())  # enviado para snake().wait_start
 
                 if len(enemies_pos) + 1 == self.max_player:
                     self.state = 'starting'
@@ -140,11 +168,7 @@ class PlayerConnection(Thread):
 
             try:
                 while self.state == 'playing':
-                    # newPosX, newPosY = self.connection.recv(1024).decode('utf-8').split(',')  # Recebe posição Player
                     newPos = self.connection.recv(1024).decode('utf-8')  # Recebe pos completa do Player de client().send
-                    # print('Snake (' + str(self.id) + '):', newPosX, newPosY)
-                    # self.pos.set(newPosX, newPosY)
-                    # self.connection.send(self.format_spielen_pos(self.get_enemies_pos(self.id)).encode())  # manda posição inimigo "0,0,1; 0,012"
                     self.connection.send(f'{newPos}-{self.id}'.encode())  # '0,1-1,1-2,1-|1' último número é o id | manda para...
             except Exception as e:
                 print(e)
@@ -157,13 +181,6 @@ class PlayerConnection(Thread):
             print('Player', self.id, ':', e)
             self.connection.close()
             self.close_match(None)
-
-    def format_spielen_body_pos(self, body_pos):  # '0,1-1,1-2,1-' -> [(0, 1), (1, 1), (2, 1)]
-        body_pos_list = []
-        for coordinate in body_pos.split('-'):
-            posX, posY = coordinate.split(',')
-            body_pos_list.append((posX, posY))
-        return body_pos_list
 
     @staticmethod
     def format_spielen_pos(positions):

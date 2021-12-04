@@ -51,12 +51,10 @@ class Spiel:
                     if enemies_pos is None:
                         self.state = self.PLAYING
                         break
-                    for idEnemy in enemies_pos:
-                        if idEnemy not in id_list:
-                            print('last warning...')
-                            id_list.append(idEnemy)
-                            self.enemies.append(Snake(enemies_pos[idEnemy], idEnemy))
-
+                    for id_enemy in enemies_pos:
+                        if id_enemy not in id_list:
+                            id_list.append(id_enemy)
+                            self.enemies.append(Snake(enemies_pos[id_enemy], id_enemy))
             elif self.state == self.PLAYING:
                 try:
                     while self.state == self.PLAYING:
@@ -64,15 +62,18 @@ class Spiel:
                         self.events()
                         self.aktualisieren()
                         self.draw()
+                        print('DESENHADO')
                 except Exception as e:
                     print(f"Exceção: {str(e)}\nConexão com o server perdida.")
                     self.state = self.MENU
 
     def aktualisieren(self):
-        # enemies_pos = self.connection.send(self.spieler.pos)
-        enemies_pos = self.connection.update_data(self.spieler.snake_body_pos)
-        for idEnemy in enemies_pos:
-            next(filter(lambda enemy: idEnemy == enemy.id, self.enemies)).set_position(enemies_pos[idEnemy])
+        enemies_pos = self.connection.update_data(self.spieler.snake_body_pos())
+        for id_enemy in enemies_pos:
+            for enemy in self.enemies:
+                if enemy.id == id_enemy:
+                    enemy.enemy_set_position(enemies_pos[id_enemy])
+            # next(filter(lambda enemy: id_enemy == enemy.id, self.enemies)).enemy_set_position(enemies_pos[id_enemy])
 
     def events(self):
         for event in pg.event.get():
@@ -96,8 +97,8 @@ class Spiel:
         self.bildschirm.fill(BLACK)
         self.draw_grid()
         self.draw_snakes()
-        if self.verify_colissions() and self.moving:
-            pg.display.flip()
+        # if self.verify_colissions() and self.moving:
+        pg.display.flip()
 
     def draw_grid(self):
         self.spieler.update()
@@ -107,9 +108,8 @@ class Spiel:
 
     def draw_snakes(self):
         self.spieler.draw(self.bildschirm)
-
-        for player in self.enemies:
-            player.draw(self.bildschirm)
+        for enemy in self.enemies:
+            enemy.draw(self.bildschirm)
 
     def verify_colissions(self):
         for enemy in self.enemies:
