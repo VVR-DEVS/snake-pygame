@@ -13,26 +13,26 @@ class StartScreen(Screen):
         self.button_play_multiplayer = Button(300, 150, 'PLAY', self.font)
         
 
-    def run(self, window, context):
+    def run(self, context):
         def start_game():
-            context[0](LocalGameScreen())
+            context.push_screen(LocalGameScreen())
 
-        window.fill(BLUE)
+        context.window.fill(BLUE)
 
         text_credits = pg.font.SysFont('sans', 20).render('developed by: Mateus Rosario and Wercton Barbosa', True,
                                                           GREY)
 
         # TODO solve conflict
-        self.button_play_multiplayer.run(window, start_game)
+        self.button_play_multiplayer.run(context.window, start_game)
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                context[1]()
+                context.exit_app()
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
-                    context[1]()
+                    context.exit_app()
 
-        window.blit(text_credits, (WIDTH / 2 + 40, HEIGHT - 90))
+        context.window.blit(text_credits, (WIDTH / 2 + 40, HEIGHT - 90))
         pg.display.update()
 
 class Button:

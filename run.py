@@ -32,23 +32,11 @@ def run():
     clock = pg.time.Clock()
     pg.display.set_caption(TITLE)
 
-    # context = AppContext(StartScreen(), window)
+    context = AppContext(window, StartScreen())
 
-    running = True
-
-    screens = []
-    start_screen = StartScreen()
-    screens.append(start_screen)
-
-    def push_screen(screen):
-        screens.append(screen)
-
-    def exit_game():
-        running = False
-
-    while running:
+    while context.running:
         clock.tick(FPS)
-        screens[-1].run(window, [push_screen, exit_game])
+        context.run_app()
 
 
 if __name__ == '__main__':
@@ -60,6 +48,6 @@ if __name__ == '__main__':
         else:
             raise Exception('Argumento inválido recebido')
     
-    # START GAME CLIENT
+    # START GAME (CLIENT)
     else:
         run()

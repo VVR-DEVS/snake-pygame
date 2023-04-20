@@ -19,11 +19,11 @@ class LocalGameScreen(Screen):
         for snake in self.snakes:
             snake.draw(window)
 
-    def run(self, window, context):
-        self.events()
+    def run(self, context):
+        self.events(context)
         for snake in self.snakes:
             snake.update()
-        self.draw(window)
+        self.draw(context.window)
     
     def draw(self, window):
         window.fill(BLACK)
@@ -32,10 +32,10 @@ class LocalGameScreen(Screen):
         # if self.verify_colissions() and self.moving:
         pg.display.flip()
 
-    def events(self):
+    def events(self, context):
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                context[1]()
+                context.exit_app()
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
                     self.snake.change_direction(Snake.UP)
@@ -55,7 +55,6 @@ class LocalGameScreen(Screen):
                     self.snakeP2.change_direction(Snake.RIGHT)
                 if event.key == pg.K_a:
                     self.snakeP2.change_direction(Snake.LEFT)
-                # if event.key == pg.K_ESCAPE:
-                #     self.connection.disconnect()
-                #     self.state = self.MENU
+                if event.key == pg.K_ESCAPE:
+                    context.exit_app()
         

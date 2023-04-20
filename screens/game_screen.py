@@ -38,9 +38,9 @@ class MultiPlayerGameScreen(Screen):
         # if self.verify_colissions() and self.moving:
         pg.display.flip()
     
-    def run(self, window, context):
+    def run(self, context):
         if self.state == self.CONNECTING:
-            self.try_connection(context[1])
+            self.try_connection(context.exit_app())
         if self.state == self.WAITING:
             id_list = []
             while True:
@@ -53,15 +53,15 @@ class MultiPlayerGameScreen(Screen):
                         id_list.append(id_enemy)
                         self.enemies.append(enemies_pos[id_enemy])
         if self.state == self.PLAYING:
-            self.events()
+            self.events(context)
             self.snake.update()
             self.update_enemies()
-            self.draw(window)
+            self.draw(context.window)
 
-    def events(self):
+    def events(self, context):
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                context[1]()
+                context.exit_app()
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
                     self.snake.change_direction(Snake.UP)
@@ -71,9 +71,8 @@ class MultiPlayerGameScreen(Screen):
                     self.snake.change_direction(Snake.RIGHT)
                 if event.key == pg.K_LEFT:
                     self.snake.change_direction(Snake.LEFT)
-                # if event.key == pg.K_ESCAPE:
-                #     self.connection.disconnect()
-                #     self.state = self.MENU
+                if event.key == pg.K_ESCAPE:
+                    context.exit_app()
     
     def try_connection(self, on_no_connection):
         try:
