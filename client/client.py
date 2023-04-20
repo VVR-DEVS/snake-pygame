@@ -1,6 +1,7 @@
 import socket
 from utils.position import Position
 from utils.settings import PORT, HOST
+from elements.snake import Snake
 
 
 class Client(object):
@@ -16,50 +17,39 @@ class Client(object):
             self.soc.send(str(num_players_match).encode())
         else:
             return None
-        pos = Position(self.soc.recv(1024).decode('utf-8'))
+        position_str = self.soc.recv(1024).decode('utf-8')
+        print('Client Snake Position', position_str)
+        pos = Position(position_str)
         return pos
 
     def wait_start(self):
         self.soc.send(b"waiting")
-        enemies_pos_data = self.soc.recv(1024).decode('utf-8')  # recebendo de server().run
+        enemies_pos_data = self.soc.recv(1024).decode('utf-8')
 
         if enemies_pos_data == 'start':
             return None
-        if enemies_pos_data == 'NEY':  # No Enemies Yet
+        if enemies_pos_data == 'NEY':
             return {}
 
         enemies_pos = []
-        for i in enemies_pos_data.split(';'):
-            item = i.split('|')
-            id_enemy = int(item[-1])
-            position = []
-            coordinates = item[0].split('-')
-            for coordinate in coordinates:
-                if coordinate:
-                    x, y = coordinate.split(',')
-                    position.append((x, y))
-            enemies_pos.append((id_enemy, position))
-        return dict(enemies_pos)  # {'0': [<utils.position.Position object at 0x7f8cc6206a00>, <utils.position.Position object at 0x7f8cc6206ac0>, <utils.position.Position object at 0x7f8cc6206b50>]}
+        for snake_str in enemies_pos_data.split(';'):
+            id_enemy = Snake.id_str(snake_str)
+            enemies_pos.append((id_enemy, Snake(None, None, None, id_player=id_enemy, body=snake_str)))
+        return dict(enemies_pos)
 
     def update_data(self, body_pos):
         print('body pos recebindo em send client:', body_pos)
-        self.soc.send(str(body_pos).encode())  # '0,1-1,1-2,1-' enviando para PlayerConnection().run
+        self.soc.send(str(body_pos).encode())
         enemies_pos = []
-        resp = self.soc.recv(1024).decode('utf-8')  # recebendo de...
+        resp = self.soc.recv(1024).decode('utf-8')
         print('resp recebido no soc:', resp)
-        for snake in resp.split(';'):
-            snake_id = snake[-1]
-            snake = snake[:-3]  # 1,10-20,10-19,10--1 -> 1,10-20,10-19,10
-            print('snake body: ', snake)
-            coordinates = []
-            for body_part in snake.split('-'):
-                x, y = body_part.split(',')
-                coordinates.append((x, y))
-            enemies_pos.append((int(snake_id), coordinates))
+        for snake_str in resp.split(';'):
+            id_enemy = Snake.id_str(snake_str)
+            enemies_pos.append((id_enemy, Snake(None, None, None, id_player=id_enemy, body=snake_str)))
         return dict(enemies_pos)
 
     def send_signal(self, signal):
-        self.soc.send(signal.encode())  # 'collided'
+        self.soc.send(signal.encode())
         enemies_pos = []
         resp = self.soc.recv(1024).decode('utf-8')
         for i in resp.split(';'):
