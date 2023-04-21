@@ -1,0 +1,16 @@
+[
+    {
+        "name": "Screen Size",
+        "code": "SCREENSIZE",
+        "type_set": "SLT",
+        "value": "DEFAULT",
+        "default": "DEFAULT",
+        "options": [
+            {
+                "value": "1024x728"
+            }
+        ],
+        "max": null,
+        "min": null
+    }
+]
