@@ -1,6 +1,6 @@
 import socket
 from utils.position import Position
-from utils.settings import PORT, HOST
+from utils import PORT, HOST
 from elements.snake import Snake
 
 

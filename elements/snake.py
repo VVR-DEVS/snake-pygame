@@ -1,6 +1,6 @@
 import pygame as pg
 import re
-from utils import Position, settings
+from utils import *
 
 class Snake:
     """This class represents the Snakes that will apear on Screen
@@ -19,7 +19,7 @@ class Snake:
 
 
     def __init__(self, head, size, direction, id_player=None, body=None):
-        self.snake_skin = pg.Surface((settings.TILESIZE, settings.TILESIZE))
+        self.snake_skin = pg.Surface((TILESIZE, TILESIZE))
         self.id = id_player
         self.size = size
         self.direction = direction
@@ -44,11 +44,11 @@ class Snake:
 
     def draw(self, bildschirm):
         for pos in self.body:
-            bildschirm.blit(self.snake_skin, (int(pos[0]) * settings.TILESIZE, int(pos[1]) * settings.TILESIZE))
+            bildschirm.blit(self.snake_skin, (int(pos[0]) * TILESIZE, int(pos[1]) * TILESIZE))
 
     def update(self):
-        last_collum = settings.WIDTH / settings.TILESIZE
-        last_row = settings.HEIGHT / settings.TILESIZE
+        last_collum = WIDTH / TILESIZE
+        last_row = HEIGHT / TILESIZE
 
         for i in range(len(self.body) - 1, 0, -1):
             self.body[i].set(self.body[i - 1][0], self.body[i - 1][1])

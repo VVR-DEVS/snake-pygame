@@ -1,8 +1,12 @@
 import pygame as pg
 import sys
+
 from server import start_server
 from utils import Position
-from utils.settings import *
+from utils import Setting
+from utils import WINDOW_SIZE
+from utils import TITLE
+from utils import FPS
 from elements.snake import Snake
 from screens.menus.start_screen import StartScreen
 
@@ -11,10 +15,12 @@ class AppContext:
     running = True
     screens = []
     window = None
+    settings = None
 
-    def __init__(self, window, home_screen):
+    def __init__(self, window, settings, home_screen):
         self.screens.append(home_screen)
         self.window = window
+        self.settings = settings
 
     def push_screen(self, screen):
         self.screens.append(screen)
@@ -28,11 +34,12 @@ class AppContext:
 
 def run():
     pg.init()
+    settings = Setting.load_settings()
     window = pg.display.set_mode(WINDOW_SIZE)
     clock = pg.time.Clock()
     pg.display.set_caption(TITLE)
 
-    context = AppContext(window, StartScreen())
+    context = AppContext(window, settings, StartScreen())
 
     while context.running:
         clock.tick(FPS)

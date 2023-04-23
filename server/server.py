@@ -4,7 +4,7 @@ from utils import Position
 from elements.snake import Snake
 from server.match import Match
 
-from utils.settings import PORT, HOST
+from utils import PORT, HOST
 
 
 class Server:

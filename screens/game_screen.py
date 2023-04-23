@@ -1,5 +1,5 @@
 from utils import Position
-from utils.settings import *
+from utils import *
 from client import Client
 from elements.snake import Snake
 from screens.screen import Screen

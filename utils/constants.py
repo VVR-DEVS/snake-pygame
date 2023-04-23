@@ -1,4 +1,4 @@
-TITLE = "Schlangenspiel Online"
+TITLE = "Snake Game Multiplayer"
 WIDTH = 1024
 HEIGHT = 768
 WINDOW_SIZE = (WIDTH, HEIGHT)
@@ -13,8 +13,8 @@ PINK = (248, 24, 148)
 
 # GAME WORK SETTINGS
 TILESIZE = 16
-GRIDWIDTH = WIDTH / TILESIZE
-GRIDHEIGHT = HEIGHT / TILESIZE
+GRIDWIDTH = 64
+GRIDHEIGHT = 48
 
 # Possible number of player in matches
 NUM_PLAYERS_MATCHES = [2, 4]
@@ -22,3 +22,5 @@ NUM_PLAYERS_MATCHES = [2, 4]
 # Server Adress
 PORT = 5578
 HOST = 'localhost'
+BUTTONWIDTH = 200
+BUTTONHEIGHT = 50
