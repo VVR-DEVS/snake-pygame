@@ -1,3 +1,4 @@
+import random
 class Position:
     x = None
     y = None
@@ -27,3 +28,7 @@ class Position:
 
     def __str__(self):
         return str(self.x) + "," + str(self.y)
+    
+    @staticmethod
+    def random_position(min_x, min_y, max_x, max_y):
+        return Position(random.randint(min_x, max_x), random.randint(min_y, max_y))

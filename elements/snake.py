@@ -44,6 +44,11 @@ class Snake:
             return [Position(head.x - i, head.y) for i in range(size)]
         elif direction == self.RIGHT:
             return [Position(head.x + i, head.y) for i in range(size)]
+    
+    def grow(self, size=1):
+        self.size += size
+        for i in range(size):
+            self.body.append(Position(self.body[-1].x, self.body[-1].y))
 
     def draw(self, bildschirm):
         for pos in self.body:

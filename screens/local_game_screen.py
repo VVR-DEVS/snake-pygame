@@ -9,6 +9,8 @@ class LocalGameScreen(Screen):
         self.snake = Snake(Position(10, 10), 3, Snake.UP)
         self.snakeP2 = Snake(Position(40, 10), 3, Snake.DOWN)
         self.snakes = [self.snake, self.snakeP2]
+        self.foods = []
+        self.max_food_qty = 3
 
     def draw_grid(self, window):
         for x in range(0, WIDTH, TILESIZE):
@@ -18,17 +20,25 @@ class LocalGameScreen(Screen):
     def draw_snakes(self, window):
         for snake in self.snakes:
             snake.draw(window)
+    
+    def draw_food(self, window):
+        surf = pg.Surface((TILESIZE, TILESIZE))
+        surf.fill((255, 0, 0))
+        for food in self.foods:
+            window.blit(surf, (food.x * TILESIZE, food.y * TILESIZE))
 
     def run(self, context):
         self.events(context)
         for snake in self.snakes:
             snake.update()
+        self.spawn_food()
         self.verify_collisions()
         self.draw(context.window)
     
     def draw(self, window):
         window.fill(BLACK)
         self.draw_grid(window)
+        self.draw_food(window)
         self.draw_snakes(window)
         pg.display.flip()
     
@@ -46,6 +56,20 @@ class LocalGameScreen(Screen):
                                 snake.kill()
                                 if section is other_snake.head():
                                     other_snake.kill()
+                
+                for food in self.foods:
+                    if snake.head() == food:
+                        snake.grow(size=3)
+                        self.foods.remove(food)
+                        break
+    
+    def spawn_food(self):
+        """spawns food at a random position on the grid
+        :return: None
+        """
+        if len(self.foods) < self.max_food_qty:
+            self.foods.append(Position.random_position(0, 0, GRIDWIDTH, GRIDHEIGHT))
+
 
     def events(self, context):
         for event in pg.event.get():
