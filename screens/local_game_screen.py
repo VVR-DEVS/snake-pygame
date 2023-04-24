@@ -96,4 +96,6 @@ class LocalGameScreen(Screen):
                     self.snakeP2.change_direction(Snake.LEFT)
                 elif event.key == pg.K_ESCAPE:
                     context.exit_app()
+                elif event.key == pg.K_BACKSPACE:
+                    context.pop_screen()
         

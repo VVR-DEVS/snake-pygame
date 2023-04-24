@@ -64,14 +64,17 @@ class MultiPlayerGameScreen(Screen):
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
                     self.snake.change_direction(Snake.UP)
-                if event.key == pg.K_DOWN:
+                elif event.key == pg.K_DOWN:
                     self.snake.change_direction(Snake.DOWN)
-                if event.key == pg.K_RIGHT:
+                elif event.key == pg.K_RIGHT:
                     self.snake.change_direction(Snake.RIGHT)
-                if event.key == pg.K_LEFT:
+                elif event.key == pg.K_LEFT:
                     self.snake.change_direction(Snake.LEFT)
-                if event.key == pg.K_ESCAPE:
+                elif event.key == pg.K_ESCAPE:
                     context.exit_app()
+                elif event.key == pg.K_BACKSPACE:
+                    context.pop_screen()
+                
     
     def try_connection(self, on_no_connection):
         try:

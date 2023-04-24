@@ -33,6 +33,8 @@ class StartScreen(Screen):
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     context.exit_app()
+                elif event.key == pg.K_RETURN:
+                    start_game()
             elif event.type == pg.MOUSEBUTTONDOWN:
                 mouse_event = True
 

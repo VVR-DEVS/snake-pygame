@@ -25,11 +25,18 @@ class AppContext:
     def push_screen(self, screen):
         self.screens.append(screen)
     
+    def pop_screen(self):
+        self.screens.pop()
+    
     def exit_app(self):
         self.running = False
 
     def run_app(self):
-        self.screens[-1].run(self)
+        # runs screen on top of the screens pile
+        try:
+            self.screens[-1].run(self)
+        except IndexError():
+            self.push_screen(StartScreen())
 
 
 def run():
