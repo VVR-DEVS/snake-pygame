@@ -23,6 +23,8 @@ class Snake:
         self.id = id_player
         self.size = size
         self.direction = direction
+        # has direction changed since last update
+        self.direction_changed = False
 
         if id_player is None:
             self.body = self.generate_body(3, head, self.LEFT)
@@ -47,6 +49,7 @@ class Snake:
             bildschirm.blit(self.snake_skin, (int(pos[0]) * TILESIZE, int(pos[1]) * TILESIZE))
 
     def update(self):
+        self.direction_changed = False
         last_collum = WIDTH / TILESIZE
         last_row = HEIGHT / TILESIZE
 
@@ -75,15 +78,24 @@ class Snake:
                 self.body[0].set(self.body[0][0], self.body[0][1] + 1)
 
     def change_direction(self, move):
-        if self.direction == Snake.UP and move == Snake.DOWN:
+        if self.direction == move or self.direction_changed:
             return
-        if self.direction == Snake.DOWN and move == Snake.UP:
-            return
-        if self.direction == Snake.RIGHT and move == Snake.LEFT:
-            return
-        if self.direction == Snake.LEFT and move == Snake.RIGHT:
-            return
+
+        if self.direction == Snake.UP:
+            if move == Snake.DOWN:
+                return
+        elif self.direction == Snake.DOWN:
+            if move == Snake.UP:
+                return
+        elif self.direction == Snake.RIGHT:
+            if move == Snake.LEFT:
+                return
+        elif self.direction == Snake.LEFT:
+            if move == Snake.RIGHT:
+                return
+        
         self.direction = move
+        self.direction_changed = True
 
     def set_body(self, body):
         if isinstance(body, str):
