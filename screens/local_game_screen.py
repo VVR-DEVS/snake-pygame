@@ -23,14 +23,29 @@ class LocalGameScreen(Screen):
         self.events(context)
         for snake in self.snakes:
             snake.update()
+        self.verify_collisions()
         self.draw(context.window)
     
     def draw(self, window):
         window.fill(BLACK)
         self.draw_grid(window)
         self.draw_snakes(window)
-        # if self.verify_colissions() and self.moving:
         pg.display.flip()
+    
+    def verify_collisions(self):
+        """verifies collisions between snakes and kills snake that is headed to the collision point
+            it takes in to account snakes hitting itself
+        :return: None
+        """
+        for snake in self.snakes:
+            if snake.alive:
+                for other_snake in self.snakes:
+                    if other_snake.alive:
+                        for section in other_snake:
+                            if snake.head() == section and snake.head() is not section:
+                                snake.kill()
+                                if section is other_snake.head():
+                                    other_snake.kill()
 
     def events(self, context):
         for event in pg.event.get():

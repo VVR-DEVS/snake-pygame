@@ -35,7 +35,6 @@ class MultiPlayerGameScreen(Screen):
         window.fill(BLACK)
         self.draw_grid(window)
         self.draw_snakes(window)
-        # if self.verify_colissions() and self.moving:
         pg.display.flip()
     
     def run(self, context):

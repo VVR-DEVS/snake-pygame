@@ -17,6 +17,9 @@ class Position:
 
     def get(self):
         return self.x, self.y
+    
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
 
     # indexing position
     def __getitem__(self, index):

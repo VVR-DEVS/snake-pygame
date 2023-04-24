@@ -25,6 +25,7 @@ class Snake:
         self.direction = direction
         # has direction changed since last update
         self.direction_changed = False
+        self.alive = True
 
         if id_player is None:
             self.body = self.generate_body(3, head, self.LEFT)
@@ -114,6 +115,10 @@ class Snake:
 
     def head(self):
         return self.body[0]
+    
+    def kill(self):
+        self.alive = False
+        self.snake_skin.fill((20, 50, 50))
     
     @staticmethod
     def id_str(snake_str):
