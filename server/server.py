@@ -1,4 +1,6 @@
 import socket
+import os
+from time import sleep
 from threading import Thread
 from utils import Position
 from elements.snake import Snake
@@ -20,15 +22,31 @@ class Server:
         self.next_match_id = 0
         self.matches = []
 
-        self.state = self.RUNNING
-
         try:
             self.soc.listen(5)
-            print('Server initialized.', '\nWaiting for conection...\n')
+
+            connections = Thread(target=self.receiving_connections)
+            self.state = self.RUNNING
+            connections.start()
+        except KeyboardInterrupt:
+            print('\nServer Initialization Closed By Keyboard')
+            self.close()
+        except Exception as e:
+            print('Server Initialization Exception:', e)
+            self.close()
+
+        self.run()
+
+    def receiving_connections(self):
+        print('Server initialized.', '\nWaiting for connections...\n')
+        try:
             while self.state == self.RUNNING:
-                connection, adress = self.soc.accept()
-                print('Connection Accepted with: ', adress)
+                # Receiving Connection
+                connection, address = self.soc.accept()
+                print('Connection Accepted with: ', address)
                 connection.send(b'connected')
+
+                # Receiving Expected Type Match
                 num_player_match = int(connection.recv(1024).decode('utf-8'))
                 print('Searching Match...\n')
                 encontrado = False
@@ -36,27 +54,56 @@ class Server:
                     if num_player_match == match.num_players and len(match.players) < match.num_players and\
                             match.state != match.STARTED:
                         encontrado = True
-                        match.add_player(connection, adress)
+                        match.add_player(connection, address)
                         break
-
+                        
+                # Start New Match
                 if not encontrado:
-                    self.matches.append(Match(self.next_match_id, num_player_match, connection, adress,
+                    self.matches.append(Match(self.next_match_id, num_player_match, connection, address,
                                               self.close_match))
+                    self.matches[-1].start()
                     self.next_match_id += 1
-
         except Exception as e:
-            print('Server:', e)
+            print('Server Start Connections Exception:', e)
+
+    def run(self):
+        try:
+            stop_print = False
+            while self.state == self.RUNNING:
+                sleep(5)
+                if not stop_print:
+                    if len(self.matches) == 0:
+                        stop_print = True
+                    print('\n====================================================>')
+                    print('Running ', len(self.matches), ' matches:')
+                    for match in self.matches:
+                        print('    | ', match)
+                    print('====================================================>')
+                    print('\n')
+
+                elif stop_print and len(self.matches) > 0:
+                    stop_print = False
+                
+        except KeyboardInterrupt:
+            print('\nServer Closed By Keyboard')
             self.close()
+        except Exception as e:
+            print('Server Run Exception:', e)
 
     def close_match(self, match_id):
         for i, match in enumerate(self.matches):
             if match.id == match_id:
                 self.matches.pop(i)
+                break
 
     def close(self):
-        print('Clossing Connections')
+        print('Closing Connections')
+        self.state = self.CLOSING
+        for match in self.matches:
+            match.close_match()
         self.soc.close()
-        raise SystemExit()
+        print('Connections Closed')
+        os._exit(1)
 
 
 def start_server():
@@ -64,7 +111,3 @@ def start_server():
         Server()
     except Exception as e:
         print('Server :', e)
-
-
-if __name__ == '__main__':
-    start_server()

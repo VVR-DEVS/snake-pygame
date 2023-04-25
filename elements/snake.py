@@ -56,19 +56,19 @@ class Snake:
 
     def update(self):
         self.direction_changed = False
-        last_collum = WIDTH / TILESIZE
-        last_row = HEIGHT / TILESIZE
+        last_column = GRIDWIDTH
+        last_row = GRIDHEIGHT
 
         for i in range(len(self.body) - 1, 0, -1):
             self.body[i].set(self.body[i - 1][0], self.body[i - 1][1])
 
         if self.direction == self.LEFT:
             if self.body[0][0] == 0:
-                self.body[0].set(last_collum, self.body[0][1])
+                self.body[0].set(last_column, self.body[0][1])
             else:
                 self.body[0].set(self.body[0][0] - 1, self.body[0][1])
         elif self.direction == self.RIGHT:
-            if self.body[0][0] == last_collum:
+            if self.body[0][0] == last_column:
                 self.body[0].set(0, self.body[0][1])
             else:
                 self.body[0].set(self.body[0][0] + 1, self.body[0][1])
@@ -132,7 +132,6 @@ class Snake:
         """
         id_ = re.findall(r'/(\d+)/', snake_str)
         if id_ != None:
-            print(id_)
             if isinstance(id_, list):
                 return id_[0]
             else:
@@ -142,7 +141,7 @@ class Snake:
 
     def __str__(self):
         if self.id == None:
-            body_pos = '['
+            body_pos = '/ ' + self.direction + ' ['
         else:
             body_pos = '/' + str(self.id) + '/ ' + self.direction + ' ['
         for i in self.body:

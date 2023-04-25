@@ -10,21 +10,29 @@ class MultiPlayerGameScreen(Screen):
     PLAYING = 0
     CONNECTING = 1
     WAITING = 2
+    DISCONNECTED = 3
 
     def __init__(self):
         self.state = self.CONNECTING
         self.connection = Client()
 
-
         self.snake = None
         self.enemies = []
 
         self.num_players_match = 2
+    
+    def disconnect(self):
+        self.state = self.DISCONNECTED
+        self.connection.disconnect()
 
     def draw_grid(self, window):
-        for x in range(0, WIDTH, TILESIZE):
-            pg.draw.line(window, GREY, (x, 0), (x, HEIGHT))
-            pg.draw.line(window, GREY, (0, x), (WIDTH, x))
+        # Drawing Vertical Lines
+        for x in range(1, GRIDWIDTH + 1):
+            pg.draw.line(window, GREY, (x * TILESIZE, 0), (x * TILESIZE, HEIGHT))
+        
+        # Drawing Horizontal Lines
+        for y in range(1, GRIDHEIGHT + 1):
+            pg.draw.line(window, GREY, (0, y * TILESIZE), (WIDTH, y * TILESIZE))
     
     def draw_snakes(self, window):
         self.snake.draw(window)
@@ -39,23 +47,29 @@ class MultiPlayerGameScreen(Screen):
     
     def run(self, context):
         if self.state == self.CONNECTING:
-            self.try_connection(context.exit_app())
+            self.try_connection(context.exit_app)
         if self.state == self.WAITING:
             id_list = []
             while True:
                 enemies_pos = self.connection.wait_start()
-                if enemies_pos is None:
+                if enemies_pos is True:
                     self.state = self.PLAYING
                     break
-                for id_enemy in enemies_pos:
-                    if id_enemy not in id_list:
-                        id_list.append(id_enemy)
-                        self.enemies.append(enemies_pos[id_enemy])
+                elif enemies_pos == False:
+                    self.disconnect()
+                elif enemies_pos is not None:
+                    for id_enemy in enemies_pos:
+                        if id_enemy not in id_list:
+                            id_list.append(id_enemy)
+                            self.enemies.append(enemies_pos[id_enemy])
+    
         if self.state == self.PLAYING:
             self.events(context)
             self.snake.update()
             self.update_enemies()
             self.draw(context.window)
+        if self.state == self.DISCONNECTED:
+            context.pop_screen()
 
     def events(self, context):
         for event in pg.event.get():
@@ -78,10 +92,10 @@ class MultiPlayerGameScreen(Screen):
     
     def try_connection(self, on_no_connection):
         try:
-            pos = self.connection.connect(self.num_players_match)
-            if pos is None:
+            position = self.connection.connect(self.num_players_match)
+            if position is None:
                 on_no_connection()
-            self.snake = Snake(pos, 3, Snake.UP)
+            self.snake = Snake(position, 3, Snake.UP)
             self.state = self.WAITING
         except Exception as e:
             print(f'Exceção: {str(e)}')
@@ -89,7 +103,11 @@ class MultiPlayerGameScreen(Screen):
     
     def update_enemies(self):
         enemies_pos = self.connection.update_data(str(self.snake))
-        print('ENEMIES POS', enemies_pos)
+
+        if not enemies_pos:
+            self.disconnect()
+            return
+
         for id_enemy in enemies_pos:
             for enemy in self.enemies:
                 if enemy.id == id_enemy:

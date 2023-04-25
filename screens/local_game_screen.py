@@ -5,6 +5,8 @@ from screens.screen import Screen
 import pygame as pg
 
 class LocalGameScreen(Screen):
+    
+
     def __init__(self):
         self.snake = Snake(Position(10, 10), 3, Snake.UP)
         self.snakeP2 = Snake(Position(40, 10), 3, Snake.DOWN)
@@ -13,9 +15,13 @@ class LocalGameScreen(Screen):
         self.max_food_qty = 3
 
     def draw_grid(self, window):
-        for x in range(0, WIDTH, TILESIZE):
-            pg.draw.line(window, GREY, (x, 0), (x, HEIGHT))
-            pg.draw.line(window, GREY, (0, x), (WIDTH, x))
+        # Drawing Vertical Lines
+        for x in range(1, GRIDWIDTH + 1):
+            pg.draw.line(window, GREY, (x * TILESIZE, 0), (x * TILESIZE, HEIGHT))
+        
+        # Drawing Horizontal Lines
+        for y in range(1, GRIDHEIGHT + 1):
+            pg.draw.line(window, GREY, (0, y * TILESIZE), (WIDTH, y * TILESIZE))
     
     def draw_snakes(self, window):
         for snake in self.snakes:

@@ -3,17 +3,20 @@ from threading import Thread
 from utils import Position
 
 class PlayerConnection(Thread):
+    WAITING = 0
+    STARTING = 1
+    PLAYING = 2
 
-    def __init__(self, connection, adress, id_player, max_player, get_enemies_pos, close_match):
+    def __init__(self, connection, address, id_player, max_player, get_enemies_pos, disconnected):
         Thread.__init__(self)
         self.id = id_player
         self.connection = connection
-        self.adress = adress
+        self.address = address
         self.max_player = max_player
 
         # CallBack to Match Object Functions
         self.get_enemies_pos = get_enemies_pos
-        self.close_match = close_match
+        self.disconnected = disconnected
 
         # Placing first player
         self.snake = Snake(Position(id_player + 1 * 20, 10), 3, Snake.UP)
@@ -22,7 +25,8 @@ class PlayerConnection(Thread):
         # Sending player data
         self.send(self.snake.head())
 
-        self.state = "waiting"
+        self.isRunning = True
+        self.state = self.WAITING
 
     def send(self, data):
         self.connection.send(str(data).encode())
@@ -42,12 +46,12 @@ class PlayerConnection(Thread):
             self.send(enemies_player_snakes)
 
         if len(enemies_pos) + 1 == self.max_player:
-            self.state = 'starting'
+            self.state = self.STARTING
     
     def start_broadcast(self):
         self.receive()
         self.send('start')
-        self.state = 'playing'
+        self.state = self.PLAYING
     
     def client_data_update(self):
         client_player_snake_data = self.receive()
@@ -63,28 +67,25 @@ class PlayerConnection(Thread):
 
     def run(self):
         try:
-            while self.state == 'waiting':
-                self.waiting_update()
+            while self.isRunning:
+                if self.state == self.WAITING:
+                    self.waiting_update()
 
-            while self.state == 'starting':
-                self.start_broadcast()
+                elif self.state == self.STARTING:
+                    self.start_broadcast()
 
-            try:
-                while self.state == 'playing':
+                elif self.state == self.PLAYING:
                     self.client_data_update()
                     self.sending_other_players_data()
-                    
-            except Exception as e:
-                print(e)
-                print('Conexão com o cliente perdida.')
-                self.close_match(self.id)
-
-            self.connection.close()
-            self.close_match(None)
+                        
         except Exception as e:
             print('Player', self.id, ':', e)
-            self.connection.close()
-            self.close_match(None)
+            self.stop()
+    
+    def stop(self):
+        self.connection.close()
+        self.disconnected(self.id)
+        self.isRunning = False
 
     @staticmethod
     def join_players_data(players_data_list):
