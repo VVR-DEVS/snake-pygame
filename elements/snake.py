@@ -109,10 +109,16 @@ class Snake:
             Using the re library to use regex to get the body parts and direction
             """
             try:
-                self.direction = re.findall(r'/(U|D|L|R)\[', body)[0]
+                self.direction = re.findall(r'/ (U|D|L|R) -', body)[0]
             except  IndexError:
                 if self.direction == None:
                     self.direction = self.LEFT
+            
+            try:
+                self.alive = False if re.findall(r'- (A|D) \[', body)[0] == 'D' else True
+            except  IndexError:
+                print('IndexError: Regex reading', re.findall(r'-(A|D)\[', body))
+
             body_parts = re.findall(r'\[(\d+), (\d+)\]', body)
             self.body = [Position(int(i[0]), int(i[1])) for i in body_parts]
         else:
@@ -140,10 +146,11 @@ class Snake:
             return
 
     def __str__(self):
-        if self.id == None:
-            body_pos = '/ ' + self.direction + ' ['
-        else:
-            body_pos = '/' + str(self.id) + '/ ' + self.direction + ' ['
+        body_pos = ''
+        if self.id != None:
+            body_pos = '/' + str(self.id)
+
+        body_pos += '/ ' + self.direction + ' - ' + ('A' if self.alive else 'D')  +  ' ['
         for i in self.body:
             body_pos += f'{i[0]}, {i[1]}] ['
         return body_pos[0: -1]
