@@ -11,16 +11,22 @@ from elements.snake import Snake
 from screens.menus.start_screen import StartScreen
 
 
-class AppContext:
+class App:
     running = True
     screens = []
     window = None
     settings = None
 
-    def __init__(self, window, settings, home_screen):
-        self.screens.append(home_screen)
-        self.window = window
-        self.settings = settings
+    def __init__(self):
+        pg.init()
+        self.settings = Setting.load_settings()
+        self.window = pg.display.set_mode(WINDOW_SIZE)
+        self.clock = pg.time.Clock()
+        pg.display.set_caption(TITLE)
+
+        self.screens.append(StartScreen())
+
+        self.run_app()
 
     def push_screen(self, screen):
         self.screens.append(screen)
@@ -32,25 +38,15 @@ class AppContext:
         self.running = False
 
     def run_app(self):
-        # runs screen on top of the screens pile
-        try:
-            self.screens[-1].run(self)
-        except IndexError():
-            self.push_screen(StartScreen())
-
-
-def run():
-    pg.init()
-    settings = Setting.load_settings()
-    window = pg.display.set_mode(WINDOW_SIZE)
-    clock = pg.time.Clock()
-    pg.display.set_caption(TITLE)
-
-    context = AppContext(window, settings, StartScreen())
-
-    while context.running:
-        clock.tick(FPS)
-        context.run_app()
+        while self.running:
+            try:
+                self.clock.tick(FPS)
+                # runs screen on top of the screens pile and pass App as context
+                self.screens[-1].run(self)
+            except IndexError():
+                # cleaning screen pile
+                self.screens = []
+                self.push_screen(StartScreen())
 
 
 if __name__ == '__main__':
@@ -64,4 +60,4 @@ if __name__ == '__main__':
     
     # START GAME (CLIENT)
     else:
-        run()
+        App()
