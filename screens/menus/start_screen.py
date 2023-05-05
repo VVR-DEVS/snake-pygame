@@ -10,8 +10,8 @@ class StartScreen(Screen):
 
     def __init__(self):
         self.font = pg.font.SysFont('arial', 40)
-        self.button_play = Button(WIDTH / 2 - 185, HEIGHT / 2 - 200, 'PLAY', self.font)
-        self.button_play_multiplayer = Button(WIDTH / 2 - 185, HEIGHT / 2 - 50, 'MULTIPLAYER', self.font)
+        self.button_play = Button(WIDTH / 2 - 185, HEIGHT / 2 - 200, 'LOCAL', self.font)
+        self.button_play_multiplayer = Button(WIDTH / 2 - 185, HEIGHT / 2 - 50, 'ONLINE', self.font)
         self.button_configs = Button(WIDTH / 2 - 185, HEIGHT / 2 + 100, 'CONFIGURATIONS', self.font)
         
 

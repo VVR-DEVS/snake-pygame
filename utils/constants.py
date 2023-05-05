@@ -10,11 +10,13 @@ GREY = (25, 25, 25)
 PURPLE = (128, 0, 128)
 BLUE = (0, 55, 55)
 PINK = (248, 24, 148)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 
 # GAME WORK SETTINGS
 TILESIZE = 16
-GRIDWIDTH = 63
-GRIDHEIGHT = 47
+GRIDWIDTH = 50
+GRIDHEIGHT = 50
 
 # Possible number of player in matches
 NUM_PLAYERS_MATCHES = [2, 4]

@@ -1,6 +1,6 @@
 import socket
 from utils.position import Position
-from utils import PORT, HOST
+from utils import PORT, HOST, GREEN
 from elements.snake import Snake
 
 
@@ -58,7 +58,7 @@ class Client(object):
         enemies_pos = []
         for snake_str in enemies_positions:
             id_enemy = Snake.id_str(snake_str)
-            enemies_pos.append((id_enemy, Snake(None, None, None, id_player=id_enemy, body=snake_str)))
+            enemies_pos.append((id_enemy, Snake(None, None, None, color=GREEN, id_player=id_enemy, body=snake_str)))
         
         return dict(enemies_pos)
 

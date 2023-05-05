@@ -13,6 +13,20 @@ class MultiPlayerGameScreen(Screen):
     DISCONNECTED = 3
 
     def __init__(self):
+        self.grid_width = GRIDWIDTH
+        self.grid_height = GRIDHEIGHT
+        if WIDTH < HEIGHT:
+            self.tile_size  = int(WIDTH / self.grid_width)
+        else:
+            self.tile_size  = int(HEIGHT / self.grid_width)
+
+        self.start_grid_x = int((WIDTH - self.grid_width * self.tile_size)/2)
+        self.start_grid_y = int((HEIGHT - self.grid_height * self.tile_size)/2)
+                
+        self.grid_rect = pg.Surface((self.grid_width * self.tile_size + self.tile_size, self.grid_height * self.tile_size + self.tile_size))
+        self.grid_rect.fill(GREY)
+        self.grid_rect.fill(BLACK, self.grid_rect.get_rect().inflate(-self.tile_size/2, -self.tile_size/2))
+
         self.state = self.CONNECTING
         self.connection = Client()
 
@@ -21,23 +35,50 @@ class MultiPlayerGameScreen(Screen):
 
         self.num_players_match = 2
     
+    def try_connection(self, on_no_connection):
+        try:
+            position = self.connection.connect(self.num_players_match)
+            if position is None:
+                on_no_connection()
+            self.snake = Snake(position, 3, Snake.UP)
+            self.state = self.WAITING
+        except Exception as e:
+            print(f'Exceção: {str(e)}')
+            on_no_connection()
+        
+    def update_enemies(self):
+        enemies_pos = self.connection.update_data(str(self.snake))
+
+        if not enemies_pos:
+            self.disconnect()
+            return
+
+        for id_enemy in enemies_pos:
+            for enemy in self.enemies:
+                if enemy.id == id_enemy:
+                    enemy.set_body(enemies_pos[id_enemy])
+    
     def disconnect(self):
         self.state = self.DISCONNECTED
         self.connection.disconnect()
 
     def draw_grid(self, window):
-        # Drawing Vertical Lines
-        for x in range(1, GRIDWIDTH + 1):
-            pg.draw.line(window, GREY, (x * TILESIZE, 0), (x * TILESIZE, HEIGHT))
-        
+        window.blit(self.grid_rect, (self.start_grid_x - self.tile_size/2, self.start_grid_y - self.tile_size/2))
+
         # Drawing Horizontal Lines
-        for y in range(1, GRIDHEIGHT + 1):
-            pg.draw.line(window, GREY, (0, y * TILESIZE), (WIDTH, y * TILESIZE))
+        for y in range(1, self.grid_height):
+            pg.draw.line(window, GREY, (self.start_grid_x, self.start_grid_y + y * self.tile_size), 
+                (self.start_grid_x + self.grid_width * self.tile_size, self.start_grid_y + y * self.tile_size))
+
+        # Drawing Vertical Lines
+        for x in range(1, self.grid_width):
+            pg.draw.line(window, GREY, (self.start_grid_x + x * self.tile_size, self.start_grid_y), 
+                (self.start_grid_x + x * self.tile_size, self.start_grid_y + self.grid_height * self.tile_size))
     
     def draw_snakes(self, window):
-        self.snake.draw(window)
+        self.snake.draw(window, self.start_grid_x, self.start_grid_y, self.tile_size)
         for snake in self.enemies:
-            snake.draw(window)
+            snake.draw(window, self.start_grid_x, self.start_grid_y, self.tile_size)
     
     def draw(self, window):
         window.fill(BLACK)
@@ -65,7 +106,7 @@ class MultiPlayerGameScreen(Screen):
     
         if self.state == self.PLAYING:
             self.events(context)
-            self.snake.update()
+            self.snake.update(self.grid_width, self.grid_height)
             self.update_enemies()
             self.draw(context.window)
         if self.state == self.DISCONNECTED:
@@ -88,27 +129,3 @@ class MultiPlayerGameScreen(Screen):
                     context.exit_app()
                 elif event.key == pg.K_BACKSPACE:
                     context.pop_screen()
-                
-    
-    def try_connection(self, on_no_connection):
-        try:
-            position = self.connection.connect(self.num_players_match)
-            if position is None:
-                on_no_connection()
-            self.snake = Snake(position, 3, Snake.UP)
-            self.state = self.WAITING
-        except Exception as e:
-            print(f'Exceção: {str(e)}')
-            on_no_connection()
-    
-    def update_enemies(self):
-        enemies_pos = self.connection.update_data(str(self.snake))
-
-        if not enemies_pos:
-            self.disconnect()
-            return
-
-        for id_enemy in enemies_pos:
-            for enemy in self.enemies:
-                if enemy.id == id_enemy:
-                    enemy.set_body(enemies_pos[id_enemy])

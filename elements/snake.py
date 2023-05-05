@@ -18,8 +18,7 @@ class Snake:
     LEFT = 'L'
 
 
-    def __init__(self, head, size, direction, id_player=None, body=None):
-        self.snake_skin = pg.Surface((TILESIZE, TILESIZE))
+    def __init__(self, head, size, direction, color=RED, id_player=None, body=None):
         self.id = id_player
         self.size = size
         self.direction = direction
@@ -27,12 +26,12 @@ class Snake:
         self.direction_changed = False
         self.alive = True
 
+        self.color = color
+
         if id_player is None:
             self.body = self.generate_body(3, head, self.LEFT)
-            self.snake_skin.fill((255, 0, 0))
         else:
             self.set_body(body)
-            self.snake_skin.fill((0, 255, 0))
 
 
     def generate_body(self, size, head, direction):
@@ -50,14 +49,19 @@ class Snake:
         for i in range(size):
             self.body.append(Position(self.body[-1].x, self.body[-1].y))
 
-    def draw(self, bildschirm):
+    def draw(self, window, start_grid_x, start_grid_y, tile_size):
+        snake_skin = pg.Surface((tile_size, tile_size))
+        if self.alive:
+            snake_skin.fill(self.color)
+        else:
+            snake_skin.fill((20, 50, 50))
         for pos in self.body:
-            bildschirm.blit(self.snake_skin, (int(pos[0]) * TILESIZE, int(pos[1]) * TILESIZE))
+            window.blit(snake_skin, (start_grid_x + int(pos[0]) * tile_size, start_grid_y + int(pos[1]) * tile_size))
 
-    def update(self):
+    def update(self, grid_width, grid_height):
         self.direction_changed = False
-        last_column = GRIDWIDTH
-        last_row = GRIDHEIGHT
+        last_column = grid_width - 1
+        last_row = grid_height - 1
 
         for i in range(len(self.body) - 1, 0, -1):
             self.body[i].set(self.body[i - 1][0], self.body[i - 1][1])
@@ -129,7 +133,6 @@ class Snake:
     
     def kill(self):
         self.alive = False
-        self.snake_skin.fill((20, 50, 50))
     
     @staticmethod
     def id_str(snake_str):

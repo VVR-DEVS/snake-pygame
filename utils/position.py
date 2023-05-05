@@ -31,4 +31,4 @@ class Position:
     
     @staticmethod
     def random_position(min_x, min_y, max_x, max_y):
-        return Position(random.randint(min_x, max_x), random.randint(min_y, max_y))
+        return Position(random.randint(min_x, max_x - 1), random.randint(min_y, max_y - 1))
