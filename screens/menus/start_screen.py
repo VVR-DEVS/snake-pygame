@@ -3,7 +3,7 @@ from utils import *
 from screens.screen import Screen
 import pygame as pg
 from screens.local_game_screen import LocalGameScreen
-from screens.game_screen import MultiPlayerGameScreen
+from screens.online_game_screen import MultiPlayerOnlineGameScreen
 
 
 class StartScreen(Screen):
@@ -20,7 +20,7 @@ class StartScreen(Screen):
             context.push_screen(LocalGameScreen())
         
         def start_multiplayer_game():
-            context.push_screen(MultiPlayerGameScreen())
+            context.push_screen(MultiPlayerOnlineGameScreen())
 
         context.window.fill(BLUE)
 

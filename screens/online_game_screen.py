@@ -6,7 +6,7 @@ from screens.screen import Screen
 import pygame as pg
 
 
-class MultiPlayerGameScreen(Screen):
+class MultiPlayerOnlineGameScreen(Screen):
     PLAYING = 0
     CONNECTING = 1
     WAITING = 2
