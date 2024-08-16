@@ -1,14 +1,16 @@
 from utils import Position
 from utils import *
+import random
+import pygame as pg
 from elements.snake import Snake
 from screens.screen import Screen
-import pygame as pg
 
 class LocalGameScreen(Screen):
 
-    def __init__(self):
+    def __init__(self, vs_comp=False):
         self.grid_width = GRIDWIDTH
         self.grid_height = GRIDHEIGHT
+
         if WIDTH < HEIGHT:
             self.tile_size  = int(WIDTH / self.grid_width)
         else:
@@ -21,6 +23,7 @@ class LocalGameScreen(Screen):
         self.grid_rect.fill(GREY)
         self.grid_rect.fill(BLACK, self.grid_rect.get_rect().inflate(-self.tile_size/2, -self.tile_size/2))
 
+        self.vs_comp = vs_comp
         self.snake = Snake(Position(10, int(self.grid_height/2)), 3, Snake.UP, color=RED)
         self.snakeP2 = Snake(Position(self.grid_width - 10, int(self.grid_height/2)), 3, Snake.DOWN, color=GREEN)
         self.snakes = [self.snake, self.snakeP2]
@@ -95,10 +98,18 @@ class LocalGameScreen(Screen):
 
 
     def events(self, context):
+        # defining snake to be controlled by secondary set of control keys
+        if self.vs_comp:
+            snakeC2 = self.snake
+            self.comp_movement()
+        else:
+            snakeC2 = self.snakeP2
+
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 context.exit_app()
             if event.type == pg.KEYDOWN:
+                # first set of control keys
                 if event.key == pg.K_UP:
                     self.snake.change_direction(Snake.UP)
                 elif event.key == pg.K_DOWN:
@@ -108,17 +119,22 @@ class LocalGameScreen(Screen):
                 elif event.key == pg.K_LEFT:
                     self.snake.change_direction(Snake.LEFT)
                 
-
+                # second set of control keys
                 elif event.key == pg.K_w:
-                    self.snakeP2.change_direction(Snake.UP)
+                    self.snakeC2.change_direction(Snake.UP)
                 elif event.key == pg.K_s:
-                    self.snakeP2.change_direction(Snake.DOWN)
+                    self.snakeC2.change_direction(Snake.DOWN)
                 elif event.key == pg.K_d:
-                    self.snakeP2.change_direction(Snake.RIGHT)
+                    self.snakeC2.change_direction(Snake.RIGHT)
                 elif event.key == pg.K_a:
-                    self.snakeP2.change_direction(Snake.LEFT)
+                    self.snakeC2.change_direction(Snake.LEFT)
+                
+                # app control keys
                 elif event.key == pg.K_ESCAPE:
                     context.exit_app()
                 elif event.key == pg.K_BACKSPACE:
                     context.pop_screen()
-        
+    
+    def comp_movement(self):
+        self.snakeP2.bot_change_direction([self.snake], self.foods, self.grid_width, self.grid_height)
+

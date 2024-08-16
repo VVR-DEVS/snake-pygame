@@ -43,10 +43,9 @@ class App:
                 self.clock.tick(FPS)
                 # runs screen on top of the screens pile and pass App as context
                 self.screens[-1].run(self)
-            except IndexError():
-                # cleaning screen pile
-                self.screens = []
+            except IndexError:
                 self.push_screen(StartScreen())
+                self.screens[-1].run(self)
 
 
 if __name__ == '__main__':

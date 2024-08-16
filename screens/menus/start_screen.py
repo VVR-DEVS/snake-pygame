@@ -17,7 +17,7 @@ class StartScreen(Screen):
 
     def run(self, context):
         def start_game():
-            context.push_screen(LocalGameScreen())
+            context.push_screen(LocalGameScreen(vs_comp=True))
         
         def start_multiplayer_game():
             context.push_screen(MultiPlayerOnlineGameScreen())
